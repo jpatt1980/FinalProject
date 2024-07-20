@@ -1,0 +1,16 @@
+[
+  {
+    "objectID": "FinalProjectEDA.html",
+    "href": "FinalProjectEDA.html",
+    "title": "Final Project - EDA",
+    "section": "",
+    "text": "Briefly describe the data and variables we have to work with (only the ones that will be investigated.used in analysis)\nDe3scribe the purpose of the EDA and ultimate goal of modeling\n\n\n\n\n\nUse relavtive path to import the data\n\n\n# Use a relative path to import the data. Convert variables to factors with \n# meaningful names\n\n\nCheck for missingness, etc.\n\n\n\n\n\nProduce meaningful summary stats and plots about the data being analyzed, particularly with how the variables relate to the response\nDo EDA on the complete data set\nEnsure narratives explain what we are exploring and what the summaries/graphs created say about the relationships in the data"
+  },
+  {
+    "objectID": "FinalProjectEDA.html#diabetes-health-indicators---eda",
+    "href": "FinalProjectEDA.html#diabetes-health-indicators---eda",
+    "title": "Final Project - EDA",
+    "section": "",
+    "text": "Briefly describe the data and variables we have to work with (only the ones that will be investigated.used in analysis)\nDe3scribe the purpose of the EDA and ultimate goal of modeling\n\n\n\n\n\nUse relavtive path to import the data\n\n\n# Use a relative path to import the data. Convert variables to factors with \n# meaningful names\n\n\nCheck for missingness, etc.\n\n\n\n\n\nProduce meaningful summary stats and plots about the data being analyzed, particularly with how the variables relate to the response\nDo EDA on the complete data set\nEnsure narratives explain what we are exploring and what the summaries/graphs created say about the relationships in the data"
+  }
+]
