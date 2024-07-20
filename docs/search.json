@@ -12,5 +12,19 @@
     "title": "Final Project - EDA",
     "section": "",
     "text": "Briefly describe the data and variables we have to work with (only the ones that will be investigated.used in analysis)\nDe3scribe the purpose of the EDA and ultimate goal of modeling\n\n\n\n\n\nUse relavtive path to import the data\n\n\n# Use a relative path to import the data. Convert variables to factors with \n# meaningful names\n\n\nCheck for missingness, etc.\n\n\n\n\n\nProduce meaningful summary stats and plots about the data being analyzed, particularly with how the variables relate to the response\nDo EDA on the complete data set\nEnsure narratives explain what we are exploring and what the summaries/graphs created say about the relationships in the data"
+  },
+  {
+    "objectID": "FinalProjectModeling.html",
+    "href": "FinalProjectModeling.html",
+    "title": "Final Project - Modeling",
+    "section": "",
+    "text": "Start with a basic introduction (it is permissible to repeat things from EDA file)\n\n\n# 70/30 split for training/testing subsets\n# Use set.seed() to make things reproducible \n\n\nThe goal is to create models for predicting the Diabetes_binary variable (using caret).\n\n2.1. Use logLoss with 5 fold cross-validation to select the best model.\n2.2. Research and write-up a paragraph about what log loss is and why we may prefer it to accuracy when predicting a binary response variable.\n\n\n\n\nProvide a reasonably thorough explanation of what a logsistic regression model is and why we apply it to this kind of data (response variable).\nFit three candidate logistic regression models and choose the best model using CV with log-loss as the metric.\n\n\n\n\n\nProvide a reasonably thorough explanation of what a classification tree model is and why we might try to use it.\nFit a classification tree with varying values for the complexity parameter (cp) and choose the best model.\n\n\n\n\n\nProvide a reasonably thorough explanation of what a classification tree model is and why we might use it (focus on differences between it and a classification tree).\nFit the random forest model and choose the best model.\n\n\n\n\n\nCompare the three best models and “declare an overall winner”"
+  },
+  {
+    "objectID": "FinalProjectModeling.html#diabetes-health-indicators---modeling",
+    "href": "FinalProjectModeling.html#diabetes-health-indicators---modeling",
+    "title": "Final Project - Modeling",
+    "section": "",
+    "text": "Start with a basic introduction (it is permissible to repeat things from EDA file)\n\n\n# 70/30 split for training/testing subsets\n# Use set.seed() to make things reproducible \n\n\nThe goal is to create models for predicting the Diabetes_binary variable (using caret).\n\n2.1. Use logLoss with 5 fold cross-validation to select the best model.\n2.2. Research and write-up a paragraph about what log loss is and why we may prefer it to accuracy when predicting a binary response variable.\n\n\n\n\nProvide a reasonably thorough explanation of what a logsistic regression model is and why we apply it to this kind of data (response variable).\nFit three candidate logistic regression models and choose the best model using CV with log-loss as the metric.\n\n\n\n\n\nProvide a reasonably thorough explanation of what a classification tree model is and why we might try to use it.\nFit a classification tree with varying values for the complexity parameter (cp) and choose the best model.\n\n\n\n\n\nProvide a reasonably thorough explanation of what a classification tree model is and why we might use it (focus on differences between it and a classification tree).\nFit the random forest model and choose the best model.\n\n\n\n\n\nCompare the three best models and “declare an overall winner”"
   }
 ]
