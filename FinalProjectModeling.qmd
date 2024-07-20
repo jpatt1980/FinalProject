@@ -1,0 +1,47 @@
+---
+title: "Final Project - Modeling"
+author: "Jason Pattison, ST558-651, SUM I 2024"
+format: html
+editor: visual
+---
+
+## Diabetes Health Indicators - Modeling
+
+### Introduction
+
+1. Start with a basic introduction (it is permissible to repeat things from EDA file)
+
+```{r Split the df for training & testing}
+
+# 70/30 split for training/testing subsets
+# Use set.seed() to make things reproducible 
+
+```
+
+2. The goal is to create models for predicting the Diabetes_binary variable (using **caret**). 
+
+2.1. Use logLoss with 5 fold cross-validation to select the best model. 
+
+2.2. Research and write-up a paragraph about what log loss is and why we may prefer it to accuracy when predicting a binary response variable. 
+
+### Logistic Regression Models
+
+1. Provide a reasonably thorough explanation of what a logsistic regression model is and why we apply it to this kind of data (response variable). 
+
+2. Fit three candidate logistic regression models and choose the best model using CV with log-loss as the metric. 
+
+### Classfication Tree 
+
+1. Provide a reasonably thorough explanation of what a classification tree model is and why we might try to use it.
+
+2. Fit a classification tree with varying values for the complexity parameter (cp) and choose the best model. 
+
+### Random Forest
+
+1. Provide a reasonably thorough explanation of what a classification tree model is and why we might use it (focus on differences between it and a classification tree). 
+
+2. Fit the random forest model and choose the best model.
+
+### Final Model Selection
+
+1. Compare the three best models and "declare an overall winner"
