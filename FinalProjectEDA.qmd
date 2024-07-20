@@ -1,0 +1,33 @@
+---
+title: "Final Project - EDA"
+author: "Jason Pattison, ST558-651, SUM I 2024"
+format: html
+editor: visual
+---
+
+## Diabetes Health Indicators - EDA
+
+### Introduciton
+
+1. Briefly describe the data and variables we have to work with (only the ones that will be investigated.used in analysis)
+
+2. De3scribe the purpose of the EDA and ultimate goal of modeling
+
+### Data
+
+1. Use relavtive path to import the data
+```{r Import, parse, and frame the data set}
+# Use a relative path to import the data. Convert variables to factors with 
+# meaningful names
+
+```
+
+2. Check for missingness, etc. 
+
+### Summarizations
+
+1. Produce meaningful summary stats and plots about the data being analyzed, particularly with how the variables relate to the response
+
+2. Do EDA on the complete data set
+
+3. Ensure narratives explain what we are exploring and what the summaries/graphs created say about the relationships in the data
