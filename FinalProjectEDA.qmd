@@ -40,7 +40,7 @@ diabetes_df
 ```
 Check for missingness
 
-```{r}
+```{r Check data set for NA values}
 
 list("Number of missing values in data set" = sum(is.na(diabetes_df)))
 
@@ -65,17 +65,16 @@ diabetes_df <- diabetes_df |>
 
 str(diabetes_df)
 ```
-Revivew of our data frame structure shows that we have successfully renamed our variables and 
+Review of our data frame structure shows that we have successfully renamed our variables and converted the categorical variables to factors. 
 
-Next we will generate a summary of the variables to determine if there are any outliers that stand out.  
-```{r}
+Next we will generate a summary of the variables to provide insight on what we will expect to see during our EDA.  
+```{r Data set summary of variables}
 
 summary(diabetes_df)
 
 ```
 
-
-2. Check for missingness, etc. 
+**BMI** appears to be generally centered with outliers in the right tail. **MentalHealth** and **PhysicalHealth** both appear to have a tendency response of "0" in the survey. **HighBP**, **HighCholesterol**, **Smoker**, **GeneralHealth**, **Sex** and **Age** each have a fairly equal distribution of responses. The remaining binary variables of **CholesterolChecked**, **Stroke**, **HeartDiseaseorAttack**, **PhysActivity**, **ConsumesFruits**, **ConsumesVeggies**, **HeavyAlcoholUse**, **HasHealthcare**, **ExpensiveTreatment**, and **DifficultyWalking** each heavily favor one response over the other. The variables of **Education** and **Income** both show an increase in responses as the category range values increase. 
 
 ### Summarizations
 
@@ -88,10 +87,10 @@ summary(diabetes_df)
 The first variable we will investigate is **HighBP**. Review of the variable summary information shows
 ```{r HighBP Summary}
 
-summary(diabetes_df$HighBP)
+print(list("Summary of HighBP"=summary(diabetes_df$HighBP)))
 
 ```
-there are greater number of observations of PTs not having high blood pressure to those that do in a proportion of approximately 7:5. This is fairly close to being an even distribution between the two categories. 
+there are greater number of observations of PTs not having high blood pressure to those that do in a ratio of approximately 7:5. This is fairly close to being 1:1, so any differences between the **HasDiabetes** categories would be due to interactions between the variables.  
 
 Using a bar plot to observe **HighBP** with respect to **HasDiabetes** shows
 ```{r HighBP by HasDiabetes, warning=FALSE, message=FALSE}
@@ -102,6 +101,7 @@ HighBP_by <- diabetes_df |>
 
 HighPB_plot <- ggplot(HighBP_by, aes(HasDiabetes, count, fill=HighBP)) +
   geom_bar(stat = "identity", position = position_dodge()) +
+  geom_text(aes(label = count), position = position_dodge(width=0.9), vjust=-0.25) +
   scale_y_continuous(labels = comma) +
   labs(title = "Bar Plot of HighBP by HasDiabetes", x="Has Diabetes", y="# of PTs")
 
@@ -109,21 +109,15 @@ HighPB_plot
 
 ```
 
-that the majority of PTs with diabetes have high blood pressure. Review of a summary table of **HasDiabetes** by **HighBP** 
-```{r HasDiabetes by HighBP summary table}
+that the majority of PTs with diabetes have high blood pressure while the majority of PTs without diabetes do not have high blood pressure. The observations in the "No" **HasDiabetes** category have a "No" to "Yes" **HighBP** ratio of approximately 68:41, which is close to 2:1. The observations in the "Yes" **HasDiabetes** category have a "No" to "Yes" **HighBP** ratio of approximately 1:3. This flip in ratios between the **HasDiabetes** groups suggests that there is a relationship between **HasDiabetes** and **HighBP**. 
 
-list("HasDiabetes by HighBP" = table("Diabetes" = diabetes_df$HasDiabetes, "HighBP" = diabetes_df$HighBP))
-
-```
-shows that the proportion of PTs with diabetes and high blood pressure is approximately 13:4 when compared to PTs with diabetes that do not have high blood pressure. 
-
-The next variable that we will investigate is **HighCholesterol**. Review of the summary information shows
+The next variable that we will investigate is **HighCholesterol**. Review of the variable summary information shows
 ```{r HighCholesterol summary}
 
-summary(diabetes_df$HighCholesterol)
+print(list("Summary of HighCholesterol"=summary(diabetes_df$HighCholesterol)))
 
 ```
-there is approximately a 7:5 proportion of PTs who do not have high cholesterol when compared to those that do. This is fairly close to being an even distribution between the two categories. 
+there is approximately a 15:11 "No" to "Yes" ratio of **HighCholesterol** observations. This distribution is fairly close to being 1:1, so any differences between the **HasDiabetes** categories would be due to interactions between the variables. 
  
 Using a bar plot to observe **HighCholesterol** with respect to **HasDiabetes** we see
 ```{r Bar Plot HighCholesterol by HasDiabetes, warning=FALSE, message=FALSE}
@@ -134,29 +128,25 @@ HighCholesterol_by <- diabetes_df |>
 
 HighCholesterol_plot <- ggplot(HighCholesterol_by, aes(HasDiabetes, count, fill=HighCholesterol)) +
   geom_bar(stat = "identity", position = position_dodge()) +
+  geom_text(aes(label = count), position = position_dodge(width=0.9), hjust=0.5) +
   scale_y_continuous(labels = comma) +
-  labs(title="Bar Plot of HighCholesterol by HasDiabetes", x="Has Diabetes", y= "# of PTs")
+  labs(title="Bar Plot of HighCholesterol by HasDiabetes", x="Has Diabetes", y= "# of PTs") +
+  coord_flip()
 
 HighCholesterol_plot
 
 ```
 
-that the proportions change between the **HasDiabetes** groups. While the proportions favor low cholesterol in the group without diabetes, they favor high cholesterol levels in the group with diabetes. Review of a summary table of **HasDiabetes** by **HighCholesterol** shows
-```{r HasDiabetes by HighCholesterol summary table}
+that the ratios change between the **HasDiabetes** groups. While the ratios favor low cholesterol in the group without diabetes, they favor high cholesterol levels in the group with diabetes. There is approximately a 13:8 (nears 2:1) ratio of "No" to "Yes" **HighCholesterol** responses in the "No" **HasDiabetes** group. There is approximately a 11:23 (nears 1:2) ratio of "No" to "Yes" **HighCholesterol** responses in the "Yes" **HasDiabetes** group. The shift in ratios between the groups trending towards PTs with diabetes having high cholesterol suggests that there is a relationship between **HasDiabetes** and **HighCholesterol**. 
 
-list("HasDiabetes by HighCholesterol" = table("HasDiabetes" = diabetes_df$HasDiabetes, "HighCholesterol"=diabetes_df$HighCholesterol))
-
-```
-there is approximately a 2:1 proportion of PTs with diabetes and high cholesterol when compared to PTs without high cholesterol. This is a change from the 8:13 proportion of PTs without diabetes having high cholesterol when compared to those who do. 
-
-The next variable we will investigate is **CholesterolChecked**. Review of the summary information shows
+The next variable we will investigate is **CholesterolChecked**. Review of the variable summary information shows
 ```{r CholesterolChecked summary}
 
-summary(diabetes_df$CholesterolChecked)
+print(list("Summary of CholesterolChecked"=summary(diabetes_df$CholesterolChecked)))
 
 ```
 
-that the overwhelming majority of PTs had their cholesterol checked at a proportion of 26:1 when compared to those who did not. Review of a bar plot of **CholesterolChecked** with respect to **HasDiabetes** shows
+that the overwhelming majority of PTs had their cholesterol checked at a ratio of 1:27 when compared to those who did not. Any differences between the **HasDiabetes** groups may be heavily influenced by the number of observations in each group more than the interaction between the variables. Review of a bar plot of **CholesterolChecked** with respect to **HasDiabetes** shows
 ```{r Bar plot of CholesterolChecked by HasDiabetes}
 
 CholesterolChecked_by <- diabetes_df |>
@@ -165,6 +155,7 @@ CholesterolChecked_by <- diabetes_df |>
 
 CholesterolChecked_plot <- ggplot(CholesterolChecked_by, aes(HasDiabetes, count, fill=CholesterolChecked)) +
   geom_bar(stat = "identity", position = position_dodge()) +
+  geom_text(aes(label = count), position = position_dodge(width=0.9), vjust=-0.25) +
   scale_y_continuous(labels = comma) +
   labs(title="Bar Plot of CholesterolChecked by HasDiabetes", x="Has Diabetes", y= "# of PTs")
 
@@ -172,23 +163,18 @@ CholesterolChecked_plot
 
 ```
 
-that there isn't much change in how the subgroups are proportioned, both heavily favor having cholesterol checked. Review of a summary table of **HasDiabetes** by **CholesterolChecked** shows 
-```{r HasDiabetes by CholesterolChecked summary table}
-
-list("HasDiabetes by CholesterolChecked" = table("HasDiabetes"=diabetes_df$HasDiabetes, "CholesterolChecked"=diabetes_df$CholesterolChecked))
-
-```
-the group without diabetes had their cholesterol checked by a 23:1 proportion while the group with diabetes had their cholesterol checked by a 146:1 proportion. The  proportion distributions between the groups suggests that the PT having their cholesterol checked had no effect on them having diabetes. 
+that the group of "Yes" **CholesterolChecked** responses dominates both categories of **HasDiabetes**.   
+The "No" **HasDiabetes** group has a "No" to "Yes" **CholesterolChecked** ratio of approximately 1:23. The "YES" **HasDiabetes** group has a "No" to "Yes" **CholesterolChecked** ratio of approximately 1:146. This information suggests that there is an increased likelihood of a PT having diabetes if they have their cholesterol checked. Because it is unlikely that checking cholesterol levels will cause diabetes, **CholesterolChecked** is not a good variable for use in prediction modeling. 
 
 
-The next variable we will investigte is **BMI**. Review of the summary information shows
+The next variable we will investigte is **BMI**. Review of the variable summary information shows
 ```{r BMI summary}
 
-summary(diabetes_df$BMI)
+print(list("Summary of BMI"=summary(diabetes_df$BMI)))
 
 ```
 
-that the data has an IQR span of 7, a Median of 27, and Mean of 28.38. This suggests the data is tightly grouped together with the Min of 12 and Max of 98 being outliers.A histogram of **BMI** shows
+that the data has an IQR span of 7, a Median of 27, and Mean of 28.38. This tells us the data is tightly grouped together with the Min of 12 and Max of 98 being outliers. A histogram of **BMI** shows
 ```{r Histogram of BMI}
 
 BMI_histogram <- ggplot(diabetes_df, aes(BMI)) +
@@ -201,7 +187,7 @@ BMI_histogram
 
 ```
 
-that the data follows a generally normal distribution with a slight skew to the right. The histogram also confirms there are outleirs in the **BMI** ranges of 12-14 and 50-98. 
+that the data follows a generally normal distribution with some skewness to the right. The histogram also confirms there are outleirs in the **BMI** ranges of 12-14 and 50-98. 
 
 Splitting the **BMI** histogram with respect to **HasDiabetes** shows
 ```{r Histogram of BMI with respect to HasDiabetes}
@@ -217,8 +203,7 @@ BMI_by_histplot
 
 ```
 
-that the distribution of PTs with diabetes shifts to the right and account for the skew in the data variable distribution. Review of side by side box and whisker plots for the **HasDiabetes** subgroups 
-
+that the distribution of observations in the "No" **HasDiabetes** group has a center near a BMI of 25 while the "Yes" **HasDiabetes** group has a center near a BMI of 30  Review of side by side box and whisker plots for the **HasDiabetes** subgroups 
 ```{r Comparison of BMI group stat summaries}
 
 BMI_by_boxwplot <- ggplot(diabetes_df, aes(HasDiabetes, BMI)) +
@@ -230,32 +215,27 @@ BMI_by_boxwplot
 
 ```
 
-confirms that the Median, Mean, and IQR spreads for the subset of PTs that have diabetes are all higher than those of the PTs who do not have diabetes.
+confirms that the Median, Mean, and IQR spreads for the "Yes" **HasDiabetes** group are all higher than those of the "No" group. Additionally, the box plot identifies that there is a shared oultier BMI range of 46-98. 
 
-Taking the sum of the BMI values less than 15 or greater than 50
+Looking back at the **BMI** histogram, the data in the BMI range of 12-14 and 46-50 appear to be inside of 3 standard deviations from the center. Because of this we determine how many BMI values are greater than 50 and how much of the data set those values make up. 
 ```{r Determine outliers}
-
-lowrange <- sum(diabetes_df$BMI < 15)
 
 highrange <- sum(diabetes_df$BMI > 50)
 
-NumofOutliers <- sum(lowrange, highrange)
+print(list("Number of BMI Oultiers"=highrange))
 
-print(list("Number of BMI Oultiers"=NumofOutliers))
-
-print(list("BMI Outlier portion of data set"=NumofOutliers/nrow(diabetes_df)))
+print(list("BMI Outlier portion of data set"=highrange/nrow(diabetes_df)))
 ```
 
-provides a count of 2175 observations that are outliers, which account for less than 1% of the data set. It would be reasonable to remove these observations from the data set before prediction model training. Analysis of **BMI** indicates that it appears to be a suitable variable for prediction modeling after removal of the outleirs. 
-
-The next varaible we're going to analyze is **Smoker**. Summary of the variable shows that
+We identified there are of 2175 observations that are outliers, which account for less than 1% of the data set. It would be reasonable to remove these observations from the data set before prediction model training. Analysis of **BMI** indicates that it appears to be a suitable variable for prediction modeling after removal of the outleirs. 
+The next varaible we're going to analyze is **Smoker**. Review of the variable summary shows that
 ```{r Smoker summary}
 
-summary(diabetes_df$Smoker)
+print(list("Summary of Smoker"=summary(diabetes_df$Smoker)))
 
 ```
 
-the proportion of smokers to non-smokers in the study is 14:11. This is distribution between the groups is relatively even. Using a bar plot to analyze **Smoker** with respect to **HasDiabetes**
+the ratio of smokers to non-smokers in the study is approximately 14:11. This is distribution between the groups is fairly close to a 1:1 distribution. Any differences between the **HasDiabetes** groups will be due to interactions between the two variables. Reviewing the bar plot of **Smoker** with respect to **HasDiabetes** shows
 ```{r Bar plot Smoker by HasDiabetes}
 
 Smoker_by <- diabetes_df |>
@@ -264,30 +244,25 @@ Smoker_by <- diabetes_df |>
 
 Smoker_plot <- ggplot(Smoker_by, aes(HasDiabetes, count, fill=Smoker)) +
   geom_bar(stat = "identity", position = position_dodge()) +
-  geom_text(aes(label = count), position = position_dodge(width=0.9), vjust=-0.25) +
+  geom_text(aes(label = count), position = position_dodge(width=0.9), hjust=0.5) +
   scale_y_continuous(labels = comma) +
-  labs(title="Bar Plot of Smoker by HasDiabetes", x="Has Diabetes", y= "# of PTs")
+  labs(title="Bar Plot of Smoker by HasDiabetes", x="Has Diabetes", y= "# of PTs") +
+  coord_flip()
 
 Smoker_plot
 
 ```
 
-shows that the proportion of Smokers and non-Smokers changes between the groups, however there does not appear to be much of a difference between the Smoker groups in the "Has" **HasDiabetes** group. Review of a summary table between **HasDiabetes** and *Smoker** shows
-```{r HasDiabetes by Smoker summary table}
+shows that the "No" **HasDiabetes** group has a "No" to "Yes" **Smoker** distribution of approximately 62:47 which is closer to a 1:1 distribution than a 2:1 distribution. The "Yes" **HasDiabetes** group has a "No" to "Yes" **Smoker** distribution of approximately 17:18 which also nears a 1:1 distribution. While the ratios shifts indicate that smokers have a higher likelihood of having diabetes than non smokers, neither **Smoker** group separates itself from the variable in both **HasDiabetes** categories. **Smoker** is not a suitable variable for inclusion in our prediction model. 
 
-print(list("HasDiabetes by Smoker"=table("Diabetes"=diabetes_df$HasDiabetes, "Smoker Group"=diabetes_df$Smoker)))
-
-```
-the proportion of non smokers to smokers in the "No" **HasDiabetes** group is approximately 4:3. The proportion of non smokers to smokers in the "Yes" **HasDiabetes** group is approximately 17:18. **Smoker** appears to be a good predictor in determining if someone did not have diabetes, which is the inverse of predicting if someone does have diabetes.
-
-The next variable we are going to analyze is **Stroke**. Summary information shows
-```{r }
+The next variable we are going to analyze is **Stroke**. Review of the variable summary shows
+```{r Stroke summary}
 
 print(list("Summary of Stroke"=summary(diabetes_df$Stroke)))
 
 ```
 
-that the proportion of "No" to "Yes" for **Stroke** is 24:1. Review of a bar plot for **Stroke** with respect to **HasDiabetes** shows
+that **Stroke** has a 24:1 "No" to "Yes" ratio. This suggests that any differences between the **HasDiabetes** groups may be heavily influenced by the number of observations in each group more than the interaction between the variables. Review of a bar plot for **Stroke** with respect to **HasDiabetes** shows
 ```{r}
 
 Stroke_by <- diabetes_df |>
@@ -296,17 +271,15 @@ Stroke_by <- diabetes_df |>
 
 Stroke_plot <- ggplot(Stroke_by, aes(HasDiabetes, count, fill=Stroke)) +
   geom_bar(stat = "identity", position = position_dodge()) +
-  geom_text(aes(label = count), position = position_dodge(width=0.9), hjust=0.5) +
+  geom_text(aes(label = count), position = position_dodge(width=0.9), vjust=-0.25) +
   scale_y_continuous(labels = comma) +
-  labs(title="Bar Plot of Stroke by HasDiabetes", x="Has Diabetes", y= "# of PTs") +
-  coord_flip()
+  labs(title="Bar Plot of Stroke by HasDiabetes", x="Has Diabetes", y= "# of PTs") 
 
 Stroke_plot
 
 ```
 
-that the proportion of "No" to "Yes" in both groups are different than the 24:1 overall distribution. However, both group distributions heavily favor the "No" **Stroke** category. Like with **CholesterolChecked**, **Stroke** will not be a good predictor variable for our model. 
-
+that the **Stroke** "No" group is prominent in both groups of **HasDiabetes**. The "No" **HasDiabetes** group has a "No to "Yes" **Stroke** ratio of approximately 211:7 which is close to 30:1. The "Yes" **HasDiabetes** group has a "No to "Yes" **Stroke** ratio of approximately 32:3 which is close to 11:1. While still favoring the "No" **Stroke** group, the reduction in ratios indicates that there is a relationship between **Stroke** and **HasDiabetes**. However, the relationship appears to be where someone who had a stroke is likely to also have diabetes, but not someone who has diabetes is likely to have had a stroke. **Stroke** does not appear to be suitable for inclusion in the prediction model. 
 
 The next variable we are going to analyze is **HeartDisesaseorAttack**. Summary information shows
 ```{r HeartDiseaseorAttack summary}
@@ -315,7 +288,7 @@ print(list("Summary of HeartDiseaseorAttack"=summary(diabetes_df$HeartDiseaseorA
 
 ```
 
-that the proportion between the "No" and "Yes" **HeartDiseaseorAttack** groups is approximately 10:1. Review of a bar plot for **HeartDiseaseorAttack** with respect to **HasDiabetes** shows
+that the ratio between the "No" and "Yes" **HeartDiseaseorAttack** groups is approximately 23:2 which is slightly larger than 11:1. Review of a bar plot for **HeartDiseaseorAttack** with respect to **HasDiabetes** shows
 ```{r Bar plot of HeartDiseaseorAttack by HasDiabetes}
 
 HeartDiseaseorAttack_by <- diabetes_df |>
@@ -324,26 +297,25 @@ HeartDiseaseorAttack_by <- diabetes_df |>
 
 HeartDiseaseorAttack_plot <- ggplot(HeartDiseaseorAttack_by, aes(HasDiabetes, count, fill=HeartDiseaseorAttack)) +
   geom_bar(stat = "identity", position = position_dodge()) +
-  geom_text(aes(label = count), position = position_dodge(width=0.9), vjust=-0.25) +
+  geom_text(aes(label = count), position = position_dodge(width=0.9), hjust=0.5) +
   scale_y_continuous(labels = comma) +
-  labs(title="Bar Plot of HeartDiseaseorAttack by HasDiabetes", x="Has Diabetes", y= "# of PTs") 
+  labs(title="Bar Plot of HeartDiseaseorAttack by HasDiabetes", x="Has Diabetes", y= "# of PTs") +
+  coord_flip()
 
 HeartDiseaseorAttack_plot
 
 ```
 
-shows that the proportion of "No" to "Yes" in both groups are different than the 10:1 overall distribution. The "No" **HasDiabetes** group has a "No" to "Yes" **HeartDiseaseorAttack** proportion of 13:1. The "Yes" **HasDiabetes** group has a "No" to "Yes" **HeartDiseaseorAttack** proportion of approximately 27:8. 
+shows that the "No" **HeartDiseaseorAttack** group is noticably larger than the "Yes" group for each category of **HasDiabetes**. The "No" **HeartDisease** group has a "No" to "Yes" **HeartDiseaseorAttack** ratio of approximately 10:1. The "Yes" **HeartDisease** group has a "No" to "Yes" **HeartDiseaseorAttack** ratio of 27:7 which nears 4:1. The ratio change between the **HasDiabetes** groups suggests that there is a relationship between the variables. However, this relationship appears to be one where someone having diabetes can be used to predict if they have heart disease or have experienced a heart attack, which is not what we're trying to predict. **HeartDiseaseorAttack** does not appear to be suitable for inclusion in the prediction model. 
 
-Both groupwise distributions heavily favor the "No" **HeartDiseaseorAttack** category. **HeartDiseaseorAttack** will not be a good predictor variable for our model.
-
-The next variable we will summarize is **PhysActivity**. Summary information shows
+The next variable we will summarize is **PhysActivity**. Review of the variable summary information shows
 ```{r PhysicalActivity summary}
 
 print(list("Summary of PhysicalActivity"= summary(diabetes_df$PhysActivity)))
 
 ```
 
-the proportion of "No" to "Yes" responses is approximately 1:3. Review of a bar plot of **PhysActivity** with respect to **HasDiabetes** shows
+the ratio of "No" to "Yes" responses is approximately 6:19 which is slightly less than 1:3. This suggests that differences between the **HasDiabetes** groups may be influenced by the number of "Yes" **PhysActivity** observations. Review of a bar plot of **PhysActivity** with respect to **HasDiabetes** shows
 ```{r Bar plot of PhysActivity by HasDiabetes}
 
 PhysActivity_by <- diabetes_df |>
@@ -352,25 +324,24 @@ PhysActivity_by <- diabetes_df |>
 
 PhysActivity_plot <- ggplot(PhysActivity_by, aes(HasDiabetes, count, fill=PhysActivity)) +
   geom_bar(stat = "identity", position = position_dodge()) +
-  geom_text(aes(label = count), position = position_dodge(width=0.9), hjust=1) +
+  geom_text(aes(label = count), position = position_dodge(width=0.9), vjust=-0.25) +
   scale_y_continuous(labels = comma) +
-  labs(title="Bar Plot of PhysicalActivity by HasDiabetes", x="Has Diabetes", y= "# of PTs") +
-  coord_flip()
+  labs(title="Bar Plot of PhysActivity by HasDiabetes", x="Has Diabetes", y= "# of PTs") 
 
 PhysActivity_plot
 
 ```
 
-the proportions of the groups remain favorable to the "Yes" **PhysActivity** group. The "No" **HasDiabetes** group has a "No" to "Yes" **PhysActivity** proportion of approximately 1:4. The "Yes" **HasDiabetes** group has a "No" to "Yes" **PhysActivity** proportion of approximately 1:2. The change in proportions is an indicator that **PhysActivitiy** is a good variable for use in prediction modeling. 
+**PhysActivity** is greater in both **HasDiabetes** groups. The "No" **HeartDisease** group has a "No" to "Yes" **PhysActivity** ratio of approximately 5:17 which is slightly less than 1:3. The "Yes" **HeartDisease** group has a "No" to "Yes" **PhysActivity** ratio of approximately 13:22 which is slightly greater than 1:2. This change in ratios shows that there is a relationship between the variables. The relationship appears to be one where someone having diabetes can be used to predict if they participate in physical activity or not, which is not what we're trying to predict. **PhysActivity** does not appear to be suitable for inclusion in the prediction model. 
 
-The next variable we're going to summarize is **ConsumesFruits**. Summary information shows 
+The next variable we're going to summarize is **ConsumesFruits**. Review of the variable summary information shows
 ```{r ConsumesFruits summary}
 
 print(list("Summary of ConsumesFruits"=summary(diabetes_df$ConsumesFruits)))
 
 ```
 
-that **ConsumesFruits** has a "No" to "Yes" proportion of approximately 9:16, which is fairly close to a 1:2 distribution. Review of a bar graph of **ConsumesFruits** with respect to **HasDiabetes** shows
+that **ConsumesFruits** has a "No" to "Yes" ratio of approximately 9:16, which is slightly greater than a 1:2 distribution. Review of a bar graph of **ConsumesFruits** with respect to **HasDiabetes** shows
 ```{r Bar plot of ConsumesFruits by HasDiabetes}
 
 ConsumesFruits_by <- diabetes_df |>
@@ -379,29 +350,69 @@ ConsumesFruits_by <- diabetes_df |>
 
 ConsumesFruits_plot <- ggplot(ConsumesFruits_by, aes(HasDiabetes, count, fill=ConsumesFruits)) +
   geom_bar(stat = "identity", position = position_dodge()) +
-  geom_text(aes(label = count), position = position_dodge(width=0.9), vjust=-0.25) +
+  geom_text(aes(label = count), position = position_dodge(width=0.9), hjust=0.5) +
   scale_y_continuous(labels = comma) +
-  labs(title="Bar Plot of ConsumesFruits by HasDiabetes", x="Has Diabetes", y= "# of PTs") 
+  labs(title="Bar Plot of ConsumesFruits by HasDiabetes", x="Has Diabetes", y= "# of PTs") +
+  coord_flip()
 
 ConsumesFruits_plot
 
 ```
 
-that both groups of **HasDiabetes** have more PTs who consume fruits than ones that do not. The "No" **HasDiabetes** group has a "No" to "Yes" **ConsumesFruits** proportion of approximately 1:2. The "Yes" **HasDiabetes** group has a "No" to "Yes" **ConsumesFruits** proportion of approximately 5:7, which falls between 1:1 and 1:2. Because these distributions are so close to one another, and the overall distirbution of the variable, **ConsumesFruits** is not a suitable variable for inclusion in the data model. 
+that both groups of **HasDiabetes** have a greater number of "Yes" **ConsumesFruits** observations. The "No" **HasDiabetes** group has a "No" to "Yes" **ConsumesFruits** ratio of approximately 8:14 which is slightly greater than 1:2. The "Yes" **HasDiabetes** group has a "No" to "Yes" **ConsumesFruits** ratio of approximately 15:21 which is slightly greater than 2:3. This change in ratios shows that there is a relationship between the variables. However, the relationship appears to be one where someone having diabetes can be used to predict if they eat fruits or not, which is not what we're tyring to predict. **ConsumesFruits** does not appear to be suitable for inclusion in the prediction model. 
 
-ConsumesVeggies
-```{r }
+The next variabel we're going to summarize is **ConsumesVeggies*. Review of the variable summary information shows
+```{r ConsumesVeggies summary}
 
+print(list("Summary of ConsumesVeggies"=summary(diabetes_df$ConsumesVeggies)))
 
+```
+
+that the proporiton of "No" to "Yes" responses is approximately 5:21 which is slightly less than 1:4. Review of a bar plot of **ConsumesVeggies** with respect to **HasDiabetes** shows
+```{r Bar plot of ConsumesVeggies by HasDiabetes}
+
+ConsumesVeggies_by <- diabetes_df |>
+  group_by(HasDiabetes, ConsumesVeggies) |>
+  summarize(count = n())
+
+ConsumesVeggies_plot <- ggplot(ConsumesVeggies_by, aes(HasDiabetes, count, fill=ConsumesVeggies)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  geom_text(aes(label = count), position = position_dodge(width=0.9), vjust=-0.25) +
+  scale_y_continuous(labels = comma) +
+  labs(title="Bar Plot of ConsumesVeggies by HasDiabetes", x="Has Diabetes", y= "# of PTs") 
+
+ConsumesVeggies_plot
 
 ```
 
-HeavyAlcoholUse
-```{r }
+that the "Yes" **ConsumesVeggies** observations are substantially greater in both categories of **HasDiabetes**. The "No" **HasDiabetes** group has a "No" to "Yes" **ConsumesVeggies** ratio of approximately 2:9 which is slightly less than 1:4. The "Yes" **HasDiabetes** group has a "No" to "Yes" **ConsumesVeggies** ratio of approximately 1:3. The change in ratios between the **HasDiabetes** groups shows that there is a relationship between the variables. However, the relationship appears to be one where someone having diabetes can be used to predict if they eat vegetables or not, which is not what we're trying to predict. **ConsumesVeggies** does not appear to be suitable for inclusion in the prediction model. 
 
+The next variable we're going to summarize is **HeavyAlcoholUse**. Review of the variable summary information shows
+```{r HeavyAlcoholUse summary}
 
+print(list("Summary of HeavyAlcoholUse"=summary(diabetes_df$HeavyAlcoholUse)))
 
 ```
+
+shows that the ratio of "No" to "Yes" responses is approximately 24:1. This suggests that any differences between the **HasDiabetes** groups may be influenced by the number of observations. Reviewing the bar plot of **HeavyAlcoholUse** with respect to **HeartDisease* shows
+```{r Bar plot of HeavyAlcoholUse by HeartDisease}
+
+HeavyAlcoholUse_by <- diabetes_df |>
+  group_by(HasDiabetes, HeavyAlcoholUse) |>
+  summarize(count = n())
+
+HeavyAlcoholUse_plot <- ggplot(HeavyAlcoholUse_by, aes(HasDiabetes, count, fill=HeavyAlcoholUse)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  geom_text(aes(label = count), position = position_dodge(width=0.9), hjust=0.5) +
+  scale_y_continuous(labels = comma) +
+  labs(title="Bar Plot of HeavyAlcoholUse by HasDiabetes", x="Has Diabetes", y= "# of PTs") +
+  coord_flip()
+
+HeavyAlcoholUse_plot
+
+```
+
+that the "No" **HeavyAlcoholUse** responses constitute the majority of observations in both **HasDiabetes** groups. The "No" **HasDiabetes** group has a "No" to "Yes" **HeavyAlcoholUse** ratio of approximately 205:13 which reduces close to 16:1. The "Yes" **HasDiabetes** group has a "No" to "Yes" **HeavyAlcoholUse** ratio of approximately 345:8 which reduces close to 43:1. The change in ratios shows that there is a relationship between the variables. However, the relationship appears to be one where someone having diabetes can be used to predict if they consume alcohol heavily, which is not what we're trying to predict. **HeavyAlcoholUse** does not appear to be suitable for inclusion in the prediction model. 
 
 HasHealthcare
 ```{r }
@@ -410,6 +421,8 @@ HasHealthcare
 
 ```
 
+
+
 ExpensiveTreatment
 ```{r } 
 
@@ -417,19 +430,42 @@ ExpensiveTreatment
 
 ```
 
+
+
 GeneralHealth
 ```{r }
 
 ```
 
 
+
 MentalHealth
+```{r}
+
+```
+
+
 
 PhysicalHealth
+```{r}
+
+```
+
+
 
 DifficultyWalking
+```{r}
+
+```
+
+
 
 Sex
+```{r}
+
+```
+
+
 
 Age
 ```{r}
@@ -439,7 +475,12 @@ summary(diabetes_df$Age)
 ```
 
 
+
 Education
+```{r}
+
+```
+
 
 
 Income
