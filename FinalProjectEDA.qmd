@@ -58,8 +58,8 @@ diabetes_df <- diabetes_df |>
          "HasHealthcare" = AnyHealthcare,
          "ExpensiveTreatment" = NoDocbcCost,
          "GeneralHealth" = GenHlth,
-         "MentalHealth" = MentHlth,
-         "PhysicalHealth" = PhysHlth,
+         "BadMentalHealth" = MentHlth,
+         "BadPhysicalHealth" = PhysHlth,
          "DifficultyWalking" = DiffWalk) |>
   mutate(across(c(1:4, 6:15, 18:22), as.factor))
 
@@ -414,44 +414,204 @@ HeavyAlcoholUse_plot
 
 that the "No" **HeavyAlcoholUse** responses constitute the majority of observations in both **HasDiabetes** groups. The "No" **HasDiabetes** group has a "No" to "Yes" **HeavyAlcoholUse** ratio of approximately 205:13 which reduces close to 16:1. The "Yes" **HasDiabetes** group has a "No" to "Yes" **HeavyAlcoholUse** ratio of approximately 345:8 which reduces close to 43:1. The change in ratios shows that there is a relationship between the variables. However, the relationship appears to be one where someone having diabetes can be used to predict if they consume alcohol heavily, which is not what we're trying to predict. **HeavyAlcoholUse** does not appear to be suitable for inclusion in the prediction model. 
 
-HasHealthcare
+The next variable we're going to summarize is **HasHealthcare**. Review of the variable summary information
 ```{r }
 
-
+print(list("Summary of HasHealthcare"=summary(diabetes_df$HasHealthcare)))
 
 ```
 
+shows that the ratio of "No" to "Yes" observations is approximately 12:241 which is close to a 1:20 ratio. This is suggestive that any differences between the **HasDiabetes** categories may be heavily influenced by the number of responses in each. Reviewing the bar chart of **HasHealthcare** with respect to **HasDiabetes** shows
+```{r}
 
+HasHealthcare_by <- diabetes_df |>
+  group_by(HasDiabetes, HasHealthcare) |>
+  summarize(count = n())
 
-ExpensiveTreatment
+HasHealthcare_plot <- ggplot(HasHealthcare_by, aes(HasDiabetes, count, fill=HasHealthcare)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  geom_text(aes(label = count), position = position_dodge(width=0.9), vjust=-0.25) +
+  scale_y_continuous(labels = comma) +
+  labs(title="Bar Plot of HasHealthcare by HasDiabetes", x="Has Diabetes", y= "# of PTs") 
+
+HasHealthcare_plot
+
+```
+
+the "Yes" **HasHealthcare** observations are substantially higher than the "No" responses for both categories of **HasDiabetes*. The "No" **HasDiabetes** group has a "No" to "Yes" **HasHealthcare** ratio of approximately 11:207 which reduces close to 1:19. The "Yes" **HasDiabetes** group has a "No" to "Yes" **HasHealthcare** ratio of approximately 14:339 which reduces close to 1:24. The ratios in both groups of **HasDiabetes** do not differ much from the overall **HasHealthcare** variable ratio of 1:20. **HasHealthcare** does not appear to be suitable for inclusion in the prediction model. 
+
+The next variable we're going to summarize is **ExpensiveTreatment**. Review of the variable summary information
 ```{r } 
 
-
+print(list("Summary of ExpensiveTreatment"=summary(diabetes_df$ExpensiveTreatment)))
 
 ```
 
+that the ration of "No" to "Yes" observations is approximately 232:21 which reduces near 11:1. This is suggestive that any differences between the **HasDiabetes** categories may be heavily influenced by the number of repsonses in each. Reviwing the bar chart of **ExpensiveTreatment** with respect to **HasDiabetes** shows 
+```{r}
 
+ExpensiveTreatment_by <- diabetes_df |>
+  group_by(HasDiabetes, ExpensiveTreatment) |>
+  summarize(count = n())
 
-GeneralHealth
+ExpensiveTreatment_plot <- ggplot(ExpensiveTreatment_by, aes(HasDiabetes, count, fill=ExpensiveTreatment)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  geom_text(aes(label = count), position = position_dodge(width=0.9), hjust=0.5) +
+  scale_y_continuous(labels = comma) +
+  labs(title="Bar Plot of ExpensiveTreatment by HasDiabetes", x="Has Diabetes", y= "# of PTs") +
+  coord_flip()
+
+ExpensiveTreatment_plot
+
+```
+
+the "No" observations are substantially greater than the "Yes" responses for both categories of **HasDiabetes**. The "No" **HasDiabetes** group has a "No" to "Yes" **ExpensiveTreatment** ratio of approximately 201:17 which reduces close to 12:1. The "Yes" **HasDiabetes** group has a "No" to "Yes" **ExpensiveTreatment** ratio of approximately 316:37 which reduces close to 9:1. There appears to be a relationship between the variables where someone with diabetes has a greater likelihood of not seeking treatment due to the cost, but that is not what we're trying to predict. **ExpensiveTreatment** does not appear to be suitbale for inclusion in the prediciton model. 
+
+The next variable we're going to summarize is **GeneralHealth**. Review of the variable summary information
 ```{r }
 
+print(list("Summary of GeneralHealth"=summary(diabetes_df$GeneralHealth)))
+
 ```
 
-
-
-MentalHealth
+shows that the majority of patients reported being in "Excellent" to "Good" health. Reviewing the bar chart of **GeneralHealth** with respect to **HasDiabetes** shows
 ```{r}
 
+GeneralHealth_by <- diabetes_df |>
+  group_by(HasDiabetes, GeneralHealth) |>
+  summarize(count = n())
+
+GeneralHealth_plot <- ggplot(GeneralHealth_by, aes(HasDiabetes, count, fill=GeneralHealth)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  geom_text(aes(label = count), position = position_dodge(width=0.9), vjust=-0.25) +
+  scale_y_continuous(labels = comma) +
+  labs(title="Bar Plot of GeneralHealth by HasDiabetes", x="Has Diabetes", y= "# of PTs") 
+
+GeneralHealth_plot
+
 ```
 
-
-
-PhysicalHealth
+that there is a shift in the reporting tendencies between the **HasDiabetes** categories. The "No" **HasDiabetes** group has a central tendency of "Very Good" followed by "Good" **GeneralHealth** responses while the "Yes" **HasDiabetes** group has a central tendency of "Good" followed by "Fair" **GeneralHealth** responses
 ```{r}
 
+NoDiabetes_high_three <- sum(GeneralHealth_by$count[1:3])/sum(GeneralHealth_by$count[1:5])
+NoDiabetes_fourth <- GeneralHealth_by$count[4]/sum(GeneralHealth_by$count[1:5])
+
+YesDiabetes_high_three <- sum(GeneralHealth_by$count[7:9])/sum(GeneralHealth_by$count[6:10]) 
+YesDiabetes_fourth <- GeneralHealth_by$count[10]/sum(GeneralHealth_by$count[6:10])
+
+print(list("GeneralHealth 1 through 3, HasDiabetes in 'No'"=NoDiabetes_high_three, "GeneralHealth 4, HasDiabetes in 'No'"=NoDiabetes_fourth, "GeneralHealth 2 through 4, HasDiabetes in 'Yes'"=YesDiabetes_high_three, "GeneralHealth 5, HasDiabetes in 'Yes'"=NoDiabetes_fourth))
+
 ```
 
+Review of the **GeneralHealth** response proportions in the "No" **HasDiabetes** group shows that over 86.59% of the observations reported having a **GeneralHealth** status of "Good" or better for the three highest responses with the 4th highest response of "Fair" accounting for another 9.98% of group responses. Review of the **GeneralHealth** response proportions in the "Yes" **HasDiabetes** shows that over 83.82% of the observations reported having a **GeneralHealth** status of "Very Good" to "Fair" for the three highest responses with the fourth highest response of "Poor" accounting for another 9.98% of group responses. The shift in **GeneralHealth** tendency between the **HasDiabetes** groups suggests that there is a relationship between the variables. **GeneralHealth** appears to be a suitable variable for prediciton modeling. 
 
+The next variable we're going to summarize is **BadMentalHealth**. Review of the variable summary information
+```{r}
+
+print(list("Summary of BadMentalHealth"=summary(diabetes_df$MentalHealth)))
+
+```
+
+shows that there is a tendency for the PTs to report that their mental health was not good for zero days. 
+
+Review of a histogram of the variable along with histograms of **MentalHealth** with respect to **HasDiabetes** shows
+```{r}
+BadMentalHealth_histogram <- ggplot(diabetes_df, aes(BadMentalHealth)) +
+  geom_histogram(aes(y=..density..), binwidth=1, fill="#CC0000", color="lightgray") +
+  scale_x_continuous(breaks = seq(0, 30, by = 5)) +
+  scale_y_continuous(breaks = seq(0, 1, by = 0.05)) +
+  labs(title="Histogram of BadMentalHealth", x="# of Days Mental Health Not Good", y="Density (# of PTs)")
+
+BadMentalHealth_histogram
+
+BadMentalHealth_by_histplot <- ggplot(diabetes_df, aes(BadMentalHealth)) +
+  geom_histogram(aes(y=..density..), binwidth=1, fill="#CC0000", color="lightgray") +
+  labs(title="Histogram of BadMentalHealth by HasDiabetes", y="Density (# of PTs)") +
+  scale_x_continuous(breaks = seq(0, 30, by = 5)) +
+  scale_y_continuous(breaks = seq(0, 1, by = 0.05)) +
+  facet_grid(~HasDiabetes)
+
+BadMentalHealth_by_histplot
+
+```
+
+that the majority of the observations in both categories of **HasDiabetes** follow the similar trend where the majority of non-zero values in **BadMentalHealth** are in the range of 1-10 days. After remvoing the zero values for analysis, we compared the proportions of 10-day **BadMentalHealth** ranges between the **HasDiabetes** groups.
+```{r}
+
+BadMentalHealth_by_nozero <- diabetes_df |>
+  group_by(HasDiabetes, BadMentalHealth) |>
+  filter(BadMentalHealth >= 1) |>
+  summarize(count=n())
+print(BadMentalHealth_by_nozero, n=60)
+
+HasDiabetesNo_first_ten <- list("HasDiabetesNo, BadMentalHealth, 1-10 days proprotion of data" =sum(MentalHealth_by_nozero$count[1:10])/sum(MentalHealth_by_nozero$count[1:30]))
+
+HasDiabetesNo_middle_ten <- list("HasDiabetesNo, BadMentalHealth, 11-20 days proprotion of data" =sum(MentalHealth_by_nozero$count[11:20])/sum(MentalHealth_by_nozero$count[1:30]))
+
+HasDiabetesNo_last_ten <- list("HasDiabetesNo, BadMentalHealth, 21-30 days proprotion of data" =sum(MentalHealth_by_nozero$count[21:30])/sum(MentalHealth_by_nozero$count[1:30]))
+
+HasDiabetesYes_first_ten <- list("HasDiabetesYes, BadMentalHealth, 1-10 days proprotion of data"=sum(MentalHealth_by_nozero$count[31:40])/sum(MentalHealth_by_nozero$count[31:60]))
+
+HasDiabetesYes_middle_ten <- list("HasDiabetesYes, BadMentalHealth, 11-20 days proprotion of data"=sum(MentalHealth_by_nozero$count[41:50])/sum(MentalHealth_by_nozero$count[31:60]))
+
+HasDiabetesYes_last_ten <- list("HasDiabetesYes, BadMentalHealth, 20-30 days proprotion of data"=sum(MentalHealth_by_nozero$count[51:60])/sum(MentalHealth_by_nozero$count[31:60]))
+
+print(c(HasDiabetesNo_first_ten, HasDiabetesYes_first_ten, HasDiabetesNo_middle_ten, HasDiabetesYes_middle_ten, HasDiabetesNo_last_ten, HasDiabetesYes_last_ten))
+
+```
+
+The comparisons showed that the "No" **HasDiabetes** group had a 70% of their **BadMentalHealth** responses in the 1-10 day range while the "Yes" **HasDiabetes** group only had a 56.2% of their **BadMentalHealth** responses in the same range. Likewise, the "Yes" **HasDiabetes** group had higher percentages of responses in both the 11-20 day and 21-30 day **BadMentalHealth** ranges than the "No" **HasDiabetes** group. The change in "0" response density between the **HasDiabetes** groups appears to have shifted to longer periods of PTs with diabetes experiencing mental health that is not good. This shows that there is a relationship between the variables. **BadMentalHealth** appears to be suitable for prediction modeling. 
+
+The next variable we're going to summarize is **BadPhysicalHealth**. Review of the variable summary information
+```{r}
+
+print(list("Summary of PhysicalHealth"=summary(diabetes_df$BadPhysicalHealth)))
+
+```
+
+shows that like **BadMentalHealth**, the vast majority of **BadPhysicalHealth** responses provided were "0". Reviewing a density plot histogram of **BadPhysicalHealth** along with histogram plots of **BadPhysicalHealth** with respect to **HasDiabetes** show
+```{r}
+
+BadPhysicalHealth_histogram <- ggplot(diabetes_df, aes(BadPhysicalHealth)) +
+  geom_histogram(aes(y=..density..), binwidth=1, fill="#CC0000", color="lightgray") +
+  scale_x_continuous(breaks = seq(0, 30, by = 5)) +
+  scale_y_continuous(breaks = seq(0, 1, by = 0.05)) +
+  labs(title="Histogram of BadPhysicalHealth", x="# of Days Mental Health Not Good", y="Density (# of PTs)")
+
+BadPhysicalHealth_histogram
+
+BadPhysicalHealth_by_histplot <- ggplot(diabetes_df, aes(BadPhysicalHealth)) +
+  geom_histogram(aes(y=..density..), binwidth=1, fill="#CC0000", color="lightgray") +
+  labs(title="Histogram of BadPhysicalHealth by HasDiabetes", y="Density (# of PTs)") +
+  scale_x_continuous(breaks = seq(0, 30, by = 5)) +
+  scale_y_continuous(breaks = seq(0, 30, by = 0.05)) +
+  facet_grid(~HasDiabetes)
+
+BadPhysicalHealth_by_histplot
+
+```
+
+that like with **BadMentalHealth**, the density of the **BadPhysicalHealth** "0" response changes between the **HasDiabetes** groups. The general trend is that when compared to the "No" **HasDiabetes** group the "Yes" **HasDiabetes** densities in the 0-7 day range are lower and then overall higher among the remaining groups. Comparing the proportions of the 0-7day ranges to the 8-30 day ranges  
+```{r}
+
+BadPhysicalHealth_by <- diabetes_df |>
+  group_by(HasDiabetes, BadMentalHealth) |>
+  summarize(count=n())
+
+BadPhysHlth_DiabetesNo_firstSeven <- list("BadPhysHealth 1-7 Days, Diabetes in 'No'" = sum(BadPhysicalHealth_by$count[1:8])/sum(BadPhysicalHealth_by$count[1:31]))
+
+BadPhysHlth_DiabetesNo_lastTwentyThree <- list("BadPhysHealth 8-30 Days, Diabetes in 'No'" = sum(BadPhysicalHealth_by$count[9:31])/sum(BadPhysicalHealth_by$count[1:31]))
+
+BadPhysHlth_DiabetesYes_firstSeven <- list("BadPhysHealth 1-7 Days, Diabetes in 'Yes'" = sum(BadPhysicalHealth_by$count[32:39])/sum(BadPhysicalHealth_by$count[32:62]))
+
+BadPhysHlth_DiabetesYes_lastTwentyThree <- list("BadPhysHealth 8-30 Days, Diabetes in 'Yes'" = sum(BadPhysicalHealth_by$count[40:62])/sum(BadPhysicalHealth_by$count[32:62]))
+
+print(c(BadPhysHlth_DiabetesNo_firstSeven, BadPhysHlth_DiabetesYes_firstSeven, BadPhysHlth_DiabetesNo_lastTwentyThree, BadPhysHlth_DiabetesYes_lastTwentyThree))
+
+```
+
+confirms that the visual assessments are correct. The "No" **HasDiabetes** group is 6.4 percentage points higher in the **BadPhysicalHealth** 0-7 day range compared to the "Yes" **HasDiabetes** group. This suggests that there is a relationship between the variables. **BadPhysicalHealth* appears to be suitable for predicion modeling. 
 
 DifficultyWalking
 ```{r}
