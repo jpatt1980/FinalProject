@@ -509,7 +509,7 @@ Review of the **GeneralHealth** response proportions in the "No" **HasDiabetes**
 The next variable we're going to summarize is **BadMentalHealth**. Review of the variable summary information
 ```{r}
 
-print(list("Summary of BadMentalHealth"=summary(diabetes_df$MentalHealth)))
+print(list("Summary of BadMentalHealth"=summary(diabetes_df$BadMentalHealth)))
 
 ```
 
@@ -545,17 +545,17 @@ BadMentalHealth_by_nozero <- diabetes_df |>
   summarize(count=n())
 print(BadMentalHealth_by_nozero, n=60)
 
-HasDiabetesNo_first_ten <- list("HasDiabetesNo, BadMentalHealth, 1-10 days proprotion of data" =sum(MentalHealth_by_nozero$count[1:10])/sum(MentalHealth_by_nozero$count[1:30]))
+HasDiabetesNo_first_ten <- list("HasDiabetesNo, BadMentalHealth, 1-10 days proprotion of data" =sum(BadMentalHealth_by_nozero$count[1:10])/sum(BadMentalHealth_by_nozero$count[1:30]))
 
-HasDiabetesNo_middle_ten <- list("HasDiabetesNo, BadMentalHealth, 11-20 days proprotion of data" =sum(MentalHealth_by_nozero$count[11:20])/sum(MentalHealth_by_nozero$count[1:30]))
+HasDiabetesNo_middle_ten <- list("HasDiabetesNo, BadMentalHealth, 11-20 days proprotion of data" =sum(BadMentalHealth_by_nozero$count[11:20])/sum(BadMentalHealth_by_nozero$count[1:30]))
 
-HasDiabetesNo_last_ten <- list("HasDiabetesNo, BadMentalHealth, 21-30 days proprotion of data" =sum(MentalHealth_by_nozero$count[21:30])/sum(MentalHealth_by_nozero$count[1:30]))
+HasDiabetesNo_last_ten <- list("HasDiabetesNo, BadMentalHealth, 21-30 days proprotion of data" =sum(BadMentalHealth_by_nozero$count[21:30])/sum(BadMentalHealth_by_nozero$count[1:30]))
 
-HasDiabetesYes_first_ten <- list("HasDiabetesYes, BadMentalHealth, 1-10 days proprotion of data"=sum(MentalHealth_by_nozero$count[31:40])/sum(MentalHealth_by_nozero$count[31:60]))
+HasDiabetesYes_first_ten <- list("HasDiabetesYes, BadMentalHealth, 1-10 days proprotion of data"=sum(BadMentalHealth_by_nozero$count[31:40])/sum(BadMentalHealth_by_nozero$count[31:60]))
 
-HasDiabetesYes_middle_ten <- list("HasDiabetesYes, BadMentalHealth, 11-20 days proprotion of data"=sum(MentalHealth_by_nozero$count[41:50])/sum(MentalHealth_by_nozero$count[31:60]))
+HasDiabetesYes_middle_ten <- list("HasDiabetesYes, BadMentalHealth, 11-20 days proprotion of data"=sum(BadMentalHealth_by_nozero$count[41:50])/sum(BadMentalHealth_by_nozero$count[31:60]))
 
-HasDiabetesYes_last_ten <- list("HasDiabetesYes, BadMentalHealth, 20-30 days proprotion of data"=sum(MentalHealth_by_nozero$count[51:60])/sum(MentalHealth_by_nozero$count[31:60]))
+HasDiabetesYes_last_ten <- list("HasDiabetesYes, BadMentalHealth, 20-30 days proprotion of data"=sum(BadMentalHealth_by_nozero$count[51:60])/sum(BadMentalHealth_by_nozero$count[31:60]))
 
 print(c(HasDiabetesNo_first_ten, HasDiabetesYes_first_ten, HasDiabetesNo_middle_ten, HasDiabetesYes_middle_ten, HasDiabetesNo_last_ten, HasDiabetesYes_last_ten))
 
@@ -611,39 +611,162 @@ print(c(BadPhysHlth_DiabetesNo_firstSeven, BadPhysHlth_DiabetesYes_firstSeven, B
 
 ```
 
-confirms that the visual assessments are correct. The "No" **HasDiabetes** group is 6.4 percentage points higher in the **BadPhysicalHealth** 0-7 day range compared to the "Yes" **HasDiabetes** group. This suggests that there is a relationship between the variables. **BadPhysicalHealth* appears to be suitable for predicion modeling. 
+confirms that the visual assessments are correct. The "No" **HasDiabetes** group is 6.4 percentage points higher in the **BadPhysicalHealth** 0-7 day range compared to the "Yes" **HasDiabetes** group. This change in **HasDiabetes** suggests that there is a relationship between the variables. **BadPhysicalHealth* appears to be suitable for prediction modeling. 
 
-DifficultyWalking
+The next variable we're going to summarize is **DifficultyWalking**. Reviewing the variable summary
 ```{r}
+
+print(list("Summary of DifficultyWalking"=summary(diabetes_df$DifficultyWalking)))
 
 ```
 
-
-
-Sex
+shows that the majority of PTs reported "No" at a ratio of approximately 211:43, which reduces to slightly less than 5:1. This suggests that any differences in the **HasDiabetes** groups will be highly influenced by the number of PTs in each. Reviewing the bar plot of **DifficultyWalking** with respect to **HasDiabetes** shows
 ```{r}
+
+
+DifficultyWalking_by <- diabetes_df |>
+  group_by(HasDiabetes, DifficultyWalking) |>
+  summarize(count = n())
+
+DifficultyWalking_plot <- ggplot(DifficultyWalking_by, aes(HasDiabetes, count, fill=DifficultyWalking)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  geom_text(aes(label = count), position = position_dodge(width=0.9), hjust=0.5) +
+  scale_y_continuous(labels = comma) +
+  labs(title="Bar Plot of DifficultyWalking by HasDiabetes", x="Has Diabetes", y= "# of PTs") +
+  coord_flip()
+
+DifficultyWalking_plot
 
 ```
 
+that the majority of responses in both **HasDiabetes** groups fall under the "No" **DifficultyWalking** group. The observations in the "No" **HasDiabetes** category have a "No" to "Yes" **DifficultyWalking** ratio of approximately 188:30 which simplifies down to a ratio slightly greater than 6:1. The observations in the "Yes" **HasDiabetes** category have a "No" to "Yes" **DifficultyWalking** ratio of approximately 222:131 which simplifies down to closer to 2:1 than 1:1. The change in ratios suggests that there is a relationship between the variabels. However, the relationship appears to be one where someone having diabetes or not can help predict if they'll have difficulty walking, but that is not what we're trying to predict. **DifficultyWalking** does not appear to be a suitable variable for our prediction model. 
 
-
-Age
+The next variable we're going to summarize is **Sex**. Reviewing the variable summary
 ```{r}
 
-summary(diabetes_df$Age)
+print(list("Summary of Sex"=summary(diabetes_df$Sex)))
 
 ```
 
-
-
-Education
+shows that the distribution between the categories is almost uniform at a female to male ratio of approximately 142:111 which simplifies to a ratio slightly greater than 1:1. Reviewing the bar plot of **Sex** with respect to **HasDiabetes** shows
 ```{r}
+
+Sex_by <- diabetes_df |>
+  group_by(HasDiabetes, Sex) |>
+  summarize(count = n())
+
+Sex_plot <- ggplot(Sex_by, aes(HasDiabetes, count, fill=Sex)) +
+  geom_bar(stat = "identity", position = position_dodge()) +
+  geom_text(aes(label = count), position = position_dodge(width=0.9), vjust=-0.25) +
+  scale_y_continuous(labels = comma) +
+  labs(title="Bar Plot of Sex by HasDiabetes", x="Has Diabetes", y= "# of PTs") 
+
+Sex_plot
 
 ```
 
+that the number of females is greater in both **HasDiabetes** groups. The observations in the "No" **HasDiabetes** category have a "No" to "Yes" **Sex** ratio of approximately 124:95 which simplifies down to a ratio of slightly greater than 1:1. The observations in the "Yes" **HasDiabetes** category have a "No" to "Yes" **Sex** ratio of approximately 184:169 which also simplifies down to a ratio slightly greater than 1:1. The difference between the groups is minimal which suggests there is not a relationship between the variables. **Sex** does not appear suitable for our prediciton model. 
 
-
-Income
+The next variable we're going to summarize is **Age**. Review of the variable summary 
 ```{r}
-summary(diabetes_df$Income)
+
+print(list("Summary of Age"=summary(diabetes_df$Age)))
+
 ```
+
+shows that there is a trend where the number of responses increase in each category until group 9 (60-64), where they then decrease as from category 10 to 12 with group 13 being slightly higher than group 12. Reviewing histograms of **Age** with respect to **HasDiabetes** shows
+```{r}
+
+Age_by <- diabetes_df |>
+  group_by(HasDiabetes, Age) |>
+  summarize(count = n())
+
+Age_plot <- ggplot(Age_by, aes(HasDiabetes, count, fill=Age)) +
+  geom_bar(stat = "identity", position = position_dodge2()) +
+  geom_text(aes(label = count), position = position_dodge(width=0.9), vjust=-0.25, size=3) +
+  scale_y_continuous(labels = comma) +
+  labs(title="Bar Plot of Age by HasDiabetes", x="Has Diabetes", y= "# of PTs")
+
+Age_plot
+
+```
+
+that there a shift in distribution between the **HasDiabetes** groups. The "No" **HasDiabetes** group has central tendency around resonse "9" while the "Yes" **HasDiabetes** group has a central tendency around response "10". Review of a summary table of the proportions between the **HasDiabetes** categories by groups shows
+```{r}
+
+AgeGrp <- Age_by$Age[1:13]
+
+proportionNo <- proportions(Age_by$count[1:13])
+
+proporitonYes <-proportions(Age_by$count[14:26])
+
+Age_Diabetes <- data.frame(AgeGrp, proportionNo, proporitonYes)
+
+Age_Diabetes <- as_tibble(Age_Diabetes)
+
+print(list("Summary Table of Age Proportions"=Age_Diabetes))
+
+proportionNo_largestThree <- sum(Age_Diabetes$proportionNo[8:10])
+
+proportionYes_largestThree <- sum(Age_Diabetes$proporitonYes[9:11])
+
+print(list("Cummulative Proportion of 3 largest Age groups, HasDiabetes - No"=proportionNo_largestThree, "Cummulative Proportion of 3 largest Age groups, HasDiabetes - Yes"=proportionYes_largestThree))
+
+```
+
+that not only did the distributions shift between the age groups, but the highest three **Age** categories (8-10) in the "No" **HasDiabetes** group account for 36.51% of the group data while the highest three **Age** categories (9-11) in the "Yes" **HasDiabetes** category account for 49.32% of the group data. These shifts in proportions suggest that there is a relationship between the variables. **Age** appears to be suitable for prediction modeling. 
+
+The next variabel we're going to summarize is **Education**. Review of the variable summary information 
+```{r}
+
+print(list("Summary of Education"=summary(diabetes_df$Education)))
+
+print(proportion(diabetes_df$Education[1:6]))
+
+```
+
+shows that the responses increased in each category with the majority of observations belonging to category 6 (College 4yrs or more (College graduate)). Reviewing the bar plot of **Education** with respect to **HasDiabetes** shows
+```{r}
+
+Education_by <- diabetes_df |>
+  group_by(HasDiabetes, Education) |>
+  summarize(count = n())
+
+Education_plot <- ggplot(Education_by, aes(HasDiabetes, count, fill=Education)) +
+  geom_bar(stat = "identity", position = position_dodge2()) +
+  geom_text(aes(label = count), position = position_dodge(width=0.9), hjust=0.5) +
+  scale_y_continuous(labels = comma) +
+  labs(title="Bar Plot of Education by HasDiabetes", x="Has Diabetes", y= "# of PTs") +
+  coord_flip()
+
+Education_plot
+
+```
+
+shows that there is a definite change in the ratios of the **Education** gropus between the **HasDiabetes** groups. The "No" **HasDiabetes** group follows the same trend as the overall data while the "Yes" **HasDiabetes** group has a fairly uniform distribution between categories 4, 5, and 6. There does appear to be a relationship between the variables where we could determine there was a high probability that someone with diabetes has a high probability of having a high school diploma, GED, or higher education but the data does not lend itself to determining if a given education level can be used to predict if someone has diabetes. **Education** does not appear to be suitable for prediciton analysis. 
+
+The last variable that we're going to summarize is **Income**. Review of the variable summary information
+```{r}
+
+print(list("Summary of Income"=summary(diabetes_df$Income)))
+
+```
+
+shows that the number of responses increase as the categories increase, with the largest group earning $75K per year or more. Reviewing a bar plot of **Income** with respect to **HasDiabetes** shows
+```{r}
+
+Income_by <- diabetes_df |>
+  group_by(HasDiabetes, Income) |>
+  summarize(count = n())
+
+Income_plot <- ggplot(Income_by, aes(HasDiabetes, count, fill=Income)) +
+  geom_bar(stat = "identity", position = position_dodge2()) +
+  geom_text(aes(label = count), position = position_dodge(width=0.9), vjust=-0.25, size=3) +
+  scale_y_continuous(labels = comma) +
+  labs(title="Bar Plot of Income by HasDiabetes", x="Has Diabetes", y= "# of PTs")
+
+Income_plot
+
+```
+
+that there is a shift in proportions of **Income** group categories between the **HasDiabetes** groups. The **Income** groups with "No" **HasDiabetes** responses appear to have a quadratic relationship with a large positive slope between groups 7 and 8. The **Income** groups with "Yes" **HasDiabetes** responses appear to have a linear relationship with a small positive slope. There appears to be a relationship between the variables where a person with diabetes has a greater probability of earning less than $75K pe year, but that is not what we're trying ot predcit. **Income** does not appear to be suitable for prediciton modeling. 

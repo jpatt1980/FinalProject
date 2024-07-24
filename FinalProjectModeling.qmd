@@ -11,7 +11,7 @@ editor: visual
 
 1. Start with a basic introduction (it is permissible to repeat things from EDA file)
 
-  - Variables identified as being candidates for prediction modeling: **HighBP**, **HighCholesterol**, **BMI**, **GeneralHealth**, **BadMentalHealth**, **BadPhysicalHealth**
+  - Variables identified as being candidates for prediction modeling: **HighBP**, **HighCholesterol**, **BMI**, **GeneralHealth**, **BadMentalHealth**, **BadPhysicalHealth**, and **Age**. 
 
   - Variables identified as needing outliers removed: **BMI**
 
