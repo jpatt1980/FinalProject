@@ -819,4 +819,4 @@ Income_plot
 
 that there is a shift in proportions of **Income** group categories between the **HasDiabetes** groups. The **Income** groups with "No" **HasDiabetes** responses appear to have a quadratic relationship with a large positive slope between groups 7 and 8. The **Income** groups with "Yes" **HasDiabetes** responses appear to have a linear relationship with a small positive slope. There appears to be a relationship between the variables where a person with diabetes has a greater probability of earning less than \$75K pe year, but that is not what we're trying ot predcit. **Income** does not appear to be suitable for prediction modeling.
 
-Next, we will use the above information to generate prediction models 
+Next, we will use the above information to generate prediction models [here](https://jpatt1980.github.io/FinalProject/FinalProjectModeling.html)
