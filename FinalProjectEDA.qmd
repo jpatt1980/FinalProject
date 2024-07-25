@@ -3,8 +3,6 @@ title: "Final Project"
 author: "Jason Pattison, ST558-651, SUM I 2024"
 format: html
 editor: visual
-editor_options: 
-  chunk_output_type: console
 ---
 
 ## Diabetes Health Indicators - EDA
