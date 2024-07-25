@@ -9,11 +9,11 @@ editor_options:
 
 ## Diabetes Health Indicators - EDA
 
-### Introduciton
+### Introduction
 
-1. Briefly describe the data and variables we have to work with (only the ones that will be investigated/used in analysis)
+1.  Briefly describe the data and variables we have to work with (only the ones that will be investigated/used in analysis)
 
-2. Describe the purpose of the EDA and ultimate goal of modeling
+2.  Describe the purpose of the EDA and ultimate goal of modeling
 
 ### Data
 
@@ -25,8 +25,8 @@ library(scales)
 
 ```
 
+1.  Use relative path to import the data
 
-1. Use relavtive path to import the data
 ```{r Import, parse, and frame the data set}
 # Use a relative path to import the data. Convert variables to factors with 
 # meaningful names
@@ -38,6 +38,7 @@ diabetes_df <- as_tibble(diabetes_df)
 diabetes_df
 
 ```
+
 Check for missingness
 
 ```{r Check data set for NA values}
@@ -65,34 +66,39 @@ diabetes_df <- diabetes_df |>
 
 str(diabetes_df)
 ```
-Review of our data frame structure shows that we have successfully renamed our variables and converted the categorical variables to factors. 
 
-Next we will generate a summary of the variables to provide insight on what we will expect to see during our EDA.  
+Review of our data frame structure shows that we have successfully renamed our variables and converted the categorical variables to factors.
+
+Next we will generate a summary of the variables to provide insight on what we will expect to see during our EDA.
+
 ```{r Data set summary of variables}
 
-summary(diabetes_df)
+print(list("Summary of Diabetes Data Frame Variables"=summary(diabetes_df)))
 
 ```
 
-**BMI** appears to be generally centered with outliers in the right tail. **MentalHealth** and **PhysicalHealth** both appear to have a tendency response of "0" in the survey. **HighBP**, **HighCholesterol**, **Smoker**, **GeneralHealth**, **Sex** and **Age** each have a fairly equal distribution of responses. The remaining binary variables of **CholesterolChecked**, **Stroke**, **HeartDiseaseorAttack**, **PhysActivity**, **ConsumesFruits**, **ConsumesVeggies**, **HeavyAlcoholUse**, **HasHealthcare**, **ExpensiveTreatment**, and **DifficultyWalking** each heavily favor one response over the other. The variables of **Education** and **Income** both show an increase in responses as the category range values increase. 
+**BMI** appears to be generally centered with outliers in the right tail. **MentalHealth** and **PhysicalHealth** both appear to have a tendency response of "0" in the survey. **HighBP**, **HighCholesterol**, **Smoker**, **GeneralHealth**, **Sex** and **Age** each have a fairly equal distribution of responses. The remaining binary variables of **CholesterolChecked**, **Stroke**, **HeartDiseaseorAttack**, **PhysActivity**, **ConsumesFruits**, **ConsumesVeggies**, **HeavyAlcoholUse**, **HasHealthcare**, **ExpensiveTreatment**, and **DifficultyWalking** each heavily favor one response over the other. The variables of **Education** and **Income** both show an increase in responses as the category range values increase.
 
 ### Summarizations
 
-1. Produce meaningful summary stats and plots about the data being analyzed, particularly with how the variables relate to the response
+1.  Produce meaningful summary stats and plots about the data being analyzed, particularly with how the variables relate to the response
 
-2. Do EDA on the complete data set
+2.  Do EDA on the complete data set
 
-3. Ensure narratives explain what we are exploring and what the summaries/graphs created say about the relationships in the data
+3.  Ensure narratives explain what we are exploring and what the summaries/graphs created say about the relationships in the data
 
 The first variable we will investigate is **HighBP**. Review of the variable summary information shows
+
 ```{r HighBP Summary}
 
 print(list("Summary of HighBP"=summary(diabetes_df$HighBP)))
 
 ```
-there are greater number of observations of PTs not having high blood pressure to those that do in a ratio of approximately 7:5. This is fairly close to being 1:1, so any differences between the **HasDiabetes** categories would be due to interactions between the variables.  
+
+there are greater number of observations of PTs not having high blood pressure to those that do in a ratio of approximately 7:5. This is fairly close to being 1:1, so any differences between the **HasDiabetes** categories would be due to interactions between the variables.
 
 Using a bar plot to observe **HighBP** with respect to **HasDiabetes** shows
+
 ```{r HighBP by HasDiabetes, warning=FALSE, message=FALSE}
 
 HighBP_by <- diabetes_df |>
@@ -109,17 +115,20 @@ HighPB_plot
 
 ```
 
-that the majority of PTs with diabetes have high blood pressure while the majority of PTs without diabetes do not have high blood pressure. The observations in the "No" **HasDiabetes** category have a "No" to "Yes" **HighBP** ratio of approximately 68:41, which is close to 2:1. The observations in the "Yes" **HasDiabetes** category have a "No" to "Yes" **HighBP** ratio of approximately 1:3. This flip in ratios between the **HasDiabetes** groups suggests that there is a relationship between **HasDiabetes** and **HighBP**. 
+that the majority of PTs with diabetes have high blood pressure while the majority of PTs without diabetes do not have high blood pressure. The observations in the "No" **HasDiabetes** category have a "No" to "Yes" **HighBP** ratio of approximately 68:41, which is close to 2:1. The observations in the "Yes" **HasDiabetes** category have a "No" to "Yes" **HighBP** ratio of approximately 1:3. This flip in ratios between the **HasDiabetes** groups suggests that there is a relationship between **HasDiabetes** and **HighBP**.
 
 The next variable that we will investigate is **HighCholesterol**. Review of the variable summary information shows
+
 ```{r HighCholesterol summary}
 
 print(list("Summary of HighCholesterol"=summary(diabetes_df$HighCholesterol)))
 
 ```
-there is approximately a 15:11 "No" to "Yes" ratio of **HighCholesterol** observations. This distribution is fairly close to being 1:1, so any differences between the **HasDiabetes** categories would be due to interactions between the variables. 
- 
+
+there is approximately a 15:11 "No" to "Yes" ratio of **HighCholesterol** observations. This distribution is fairly close to being 1:1, so any differences between the **HasDiabetes** categories would be due to interactions between the variables.
+
 Using a bar plot to observe **HighCholesterol** with respect to **HasDiabetes** we see
+
 ```{r Bar Plot HighCholesterol by HasDiabetes, warning=FALSE, message=FALSE}
 
 HighCholesterol_by <- diabetes_df |>
@@ -137,9 +146,10 @@ HighCholesterol_plot
 
 ```
 
-that the ratios change between the **HasDiabetes** groups. While the ratios favor low cholesterol in the group without diabetes, they favor high cholesterol levels in the group with diabetes. There is approximately a 13:8 (nears 2:1) ratio of "No" to "Yes" **HighCholesterol** responses in the "No" **HasDiabetes** group. There is approximately a 11:23 (nears 1:2) ratio of "No" to "Yes" **HighCholesterol** responses in the "Yes" **HasDiabetes** group. The shift in ratios between the groups trending towards PTs with diabetes having high cholesterol suggests that there is a relationship between **HasDiabetes** and **HighCholesterol**. 
+that the ratios change between the **HasDiabetes** groups. While the ratios favor low cholesterol in the group without diabetes, they favor high cholesterol levels in the group with diabetes. There is approximately a 13:8 (nears 2:1) ratio of "No" to "Yes" **HighCholesterol** responses in the "No" **HasDiabetes** group. There is approximately a 11:23 (nears 1:2) ratio of "No" to "Yes" **HighCholesterol** responses in the "Yes" **HasDiabetes** group. The shift in ratios between the groups trending towards PTs with diabetes having high cholesterol suggests that there is a relationship between **HasDiabetes** and **HighCholesterol**.
 
 The next variable we will investigate is **CholesterolChecked**. Review of the variable summary information shows
+
 ```{r CholesterolChecked summary}
 
 print(list("Summary of CholesterolChecked"=summary(diabetes_df$CholesterolChecked)))
@@ -147,6 +157,7 @@ print(list("Summary of CholesterolChecked"=summary(diabetes_df$CholesterolChecke
 ```
 
 that the overwhelming majority of PTs had their cholesterol checked at a ratio of 1:27 when compared to those who did not. Any differences between the **HasDiabetes** groups may be heavily influenced by the number of observations in each group more than the interaction between the variables. Review of a bar plot of **CholesterolChecked** with respect to **HasDiabetes** shows
+
 ```{r Bar plot of CholesterolChecked by HasDiabetes}
 
 CholesterolChecked_by <- diabetes_df |>
@@ -163,11 +174,11 @@ CholesterolChecked_plot
 
 ```
 
-that the group of "Yes" **CholesterolChecked** responses dominates both categories of **HasDiabetes**.   
-The "No" **HasDiabetes** group has a "No" to "Yes" **CholesterolChecked** ratio of approximately 1:23. The "YES" **HasDiabetes** group has a "No" to "Yes" **CholesterolChecked** ratio of approximately 1:146. This information suggests that there is an increased likelihood of a PT having diabetes if they have their cholesterol checked. Because it is unlikely that checking cholesterol levels will cause diabetes, **CholesterolChecked** is not a good variable for use in prediction modeling. 
-
+that the group of "Yes" **CholesterolChecked** responses dominates both categories of **HasDiabetes**.\
+The "No" **HasDiabetes** group has a "No" to "Yes" **CholesterolChecked** ratio of approximately 1:23. The "YES" **HasDiabetes** group has a "No" to "Yes" **CholesterolChecked** ratio of approximately 1:146. This information suggests that there is an increased likelihood of a PT having diabetes if they have their cholesterol checked. Because it is unlikely that checking cholesterol levels will cause diabetes, **CholesterolChecked** is not a good variable for use in prediction modeling.
 
 The next variable we will investigte is **BMI**. Review of the variable summary information shows
+
 ```{r BMI summary}
 
 print(list("Summary of BMI"=summary(diabetes_df$BMI)))
@@ -175,6 +186,7 @@ print(list("Summary of BMI"=summary(diabetes_df$BMI)))
 ```
 
 that the data has an IQR span of 7, a Median of 27, and Mean of 28.38. This tells us the data is tightly grouped together with the Min of 12 and Max of 98 being outliers. A histogram of **BMI** shows
+
 ```{r Histogram of BMI}
 
 BMI_histogram <- ggplot(diabetes_df, aes(BMI)) +
@@ -187,9 +199,10 @@ BMI_histogram
 
 ```
 
-that the data follows a generally normal distribution with some skewness to the right. The histogram also confirms there are outleirs in the **BMI** ranges of 12-14 and 50-98. 
+that the data follows a generally normal distribution with some skewness to the right. The histogram also confirms there are outleirs in the **BMI** ranges of 12-14 and 50-98.
 
 Splitting the **BMI** histogram with respect to **HasDiabetes** shows
+
 ```{r Histogram of BMI with respect to HasDiabetes}
 
 BMI_by_histplot <- ggplot(diabetes_df, aes(BMI)) +
@@ -203,7 +216,8 @@ BMI_by_histplot
 
 ```
 
-that the distribution of observations in the "No" **HasDiabetes** group has a center near a BMI of 25 while the "Yes" **HasDiabetes** group has a center near a BMI of 30  Review of side by side box and whisker plots for the **HasDiabetes** subgroups 
+that the distribution of observations in the "No" **HasDiabetes** group has a center near a BMI of 25 while the "Yes" **HasDiabetes** group has a center near a BMI of 30 Review of side by side box and whisker plots for the **HasDiabetes** subgroups
+
 ```{r Comparison of BMI group stat summaries}
 
 BMI_by_boxwplot <- ggplot(diabetes_df, aes(HasDiabetes, BMI)) +
@@ -215,9 +229,10 @@ BMI_by_boxwplot
 
 ```
 
-confirms that the Median, Mean, and IQR spreads for the "Yes" **HasDiabetes** group are all higher than those of the "No" group. Additionally, the box plot identifies that there is a shared oultier BMI range of 46-98. 
+confirms that the Median, Mean, and IQR spreads for the "Yes" **HasDiabetes** group are all higher than those of the "No" group. Additionally, the box plot identifies that there is a shared oultier BMI range of 46-98.
 
-Looking back at the **BMI** histogram, the data in the BMI range of 12-14 and 46-50 appear to be inside of 3 standard deviations from the center. Because of this we determine how many BMI values are greater than 50 and how much of the data set those values make up. 
+Looking back at the **BMI** histogram, the data in the BMI range of 12-14 and 46-50 appear to be inside of 3 standard deviations from the center. Because of this we determine how many BMI values are greater than 50 and how much of the data set those values make up.
+
 ```{r Determine outliers}
 
 highrange <- sum(diabetes_df$BMI > 50)
@@ -227,8 +242,8 @@ print(list("Number of BMI Oultiers"=highrange))
 print(list("BMI Outlier portion of data set"=highrange/nrow(diabetes_df)))
 ```
 
-We identified there are of 2175 observations that are outliers, which account for less than 1% of the data set. It would be reasonable to remove these observations from the data set before prediction model training. Analysis of **BMI** indicates that it appears to be a suitable variable for prediction modeling after removal of the outleirs. 
-The next varaible we're going to analyze is **Smoker**. Review of the variable summary shows that
+We identified there are of 2175 observations that are outliers, which account for less than 1% of the data set. It would be reasonable to remove these observations from the data set before prediction model training. Analysis of **BMI** indicates that it appears to be a suitable variable for prediction modeling after removal of the outleirs. The next varaible we're going to analyze is **Smoker**. Review of the variable summary shows that
+
 ```{r Smoker summary}
 
 print(list("Summary of Smoker"=summary(diabetes_df$Smoker)))
@@ -236,6 +251,7 @@ print(list("Summary of Smoker"=summary(diabetes_df$Smoker)))
 ```
 
 the ratio of smokers to non-smokers in the study is approximately 14:11. This is distribution between the groups is fairly close to a 1:1 distribution. Any differences between the **HasDiabetes** groups will be due to interactions between the two variables. Reviewing the bar plot of **Smoker** with respect to **HasDiabetes** shows
+
 ```{r Bar plot Smoker by HasDiabetes}
 
 Smoker_by <- diabetes_df |>
@@ -253,9 +269,10 @@ Smoker_plot
 
 ```
 
-shows that the "No" **HasDiabetes** group has a "No" to "Yes" **Smoker** distribution of approximately 62:47 which is closer to a 1:1 distribution than a 2:1 distribution. The "Yes" **HasDiabetes** group has a "No" to "Yes" **Smoker** distribution of approximately 17:18 which also nears a 1:1 distribution. While the ratios shifts indicate that smokers have a higher likelihood of having diabetes than non smokers, neither **Smoker** group separates itself from the variable in both **HasDiabetes** categories. **Smoker** is not a suitable variable for inclusion in our prediction model. 
+shows that the "No" **HasDiabetes** group has a "No" to "Yes" **Smoker** distribution of approximately 62:47 which is closer to a 1:1 distribution than a 2:1 distribution. The "Yes" **HasDiabetes** group has a "No" to "Yes" **Smoker** distribution of approximately 17:18 which also nears a 1:1 distribution. While the ratios shifts indicate that smokers have a higher likelihood of having diabetes than non smokers, neither **Smoker** group separates itself from the variable in both **HasDiabetes** categories. **Smoker** is not a suitable variable for inclusion in our prediction model.
 
 The next variable we are going to analyze is **Stroke**. Review of the variable summary shows
+
 ```{r Stroke summary}
 
 print(list("Summary of Stroke"=summary(diabetes_df$Stroke)))
@@ -263,6 +280,7 @@ print(list("Summary of Stroke"=summary(diabetes_df$Stroke)))
 ```
 
 that **Stroke** has a 24:1 "No" to "Yes" ratio. This suggests that any differences between the **HasDiabetes** groups may be heavily influenced by the number of observations in each group more than the interaction between the variables. Review of a bar plot for **Stroke** with respect to **HasDiabetes** shows
+
 ```{r}
 
 Stroke_by <- diabetes_df |>
@@ -279,9 +297,10 @@ Stroke_plot
 
 ```
 
-that the **Stroke** "No" group is prominent in both groups of **HasDiabetes**. The "No" **HasDiabetes** group has a "No to "Yes" **Stroke** ratio of approximately 211:7 which is close to 30:1. The "Yes" **HasDiabetes** group has a "No to "Yes" **Stroke** ratio of approximately 32:3 which is close to 11:1. While still favoring the "No" **Stroke** group, the reduction in ratios indicates that there is a relationship between **Stroke** and **HasDiabetes**. However, the relationship appears to be where someone who had a stroke is likely to also have diabetes, but not someone who has diabetes is likely to have had a stroke. **Stroke** does not appear to be suitable for inclusion in the prediction model. 
+that the **Stroke** "No" group is prominent in both groups of **HasDiabetes**. The "No" **HasDiabetes** group has a "No to "Yes" **Stroke** ratio of approximately 211:7 which is close to 30:1. The "Yes" **HasDiabetes** group has a "No to "Yes" **Stroke** ratio of approximately 32:3 which is close to 11:1. While still favoring the "No" **Stroke** group, the reduction in ratios indicates that there is a relationship between **Stroke** and **HasDiabetes**. However, the relationship appears to be where someone who had a stroke is likely to also have diabetes, but not someone who has diabetes is likely to have had a stroke. **Stroke** does not appear to be suitable for inclusion in the prediction model.
 
 The next variable we are going to analyze is **HeartDisesaseorAttack**. Summary information shows
+
 ```{r HeartDiseaseorAttack summary}
 
 print(list("Summary of HeartDiseaseorAttack"=summary(diabetes_df$HeartDiseaseorAttack)))
@@ -289,6 +308,7 @@ print(list("Summary of HeartDiseaseorAttack"=summary(diabetes_df$HeartDiseaseorA
 ```
 
 that the ratio between the "No" and "Yes" **HeartDiseaseorAttack** groups is approximately 23:2 which is slightly larger than 11:1. Review of a bar plot for **HeartDiseaseorAttack** with respect to **HasDiabetes** shows
+
 ```{r Bar plot of HeartDiseaseorAttack by HasDiabetes}
 
 HeartDiseaseorAttack_by <- diabetes_df |>
@@ -306,9 +326,10 @@ HeartDiseaseorAttack_plot
 
 ```
 
-shows that the "No" **HeartDiseaseorAttack** group is noticably larger than the "Yes" group for each category of **HasDiabetes**. The "No" **HeartDisease** group has a "No" to "Yes" **HeartDiseaseorAttack** ratio of approximately 10:1. The "Yes" **HeartDisease** group has a "No" to "Yes" **HeartDiseaseorAttack** ratio of 27:7 which nears 4:1. The ratio change between the **HasDiabetes** groups suggests that there is a relationship between the variables. However, this relationship appears to be one where someone having diabetes can be used to predict if they have heart disease or have experienced a heart attack, which is not what we're trying to predict. **HeartDiseaseorAttack** does not appear to be suitable for inclusion in the prediction model. 
+shows that the "No" **HeartDiseaseorAttack** group is noticably larger than the "Yes" group for each category of **HasDiabetes**. The "No" **HeartDisease** group has a "No" to "Yes" **HeartDiseaseorAttack** ratio of approximately 10:1. The "Yes" **HeartDisease** group has a "No" to "Yes" **HeartDiseaseorAttack** ratio of 27:7 which nears 4:1. The ratio change between the **HasDiabetes** groups suggests that there is a relationship between the variables. However, this relationship appears to be one where someone having diabetes can be used to predict if they have heart disease or have experienced a heart attack, which is not what we're trying to predict. **HeartDiseaseorAttack** does not appear to be suitable for inclusion in the prediction model.
 
 The next variable we will summarize is **PhysActivity**. Review of the variable summary information shows
+
 ```{r PhysicalActivity summary}
 
 print(list("Summary of PhysicalActivity"= summary(diabetes_df$PhysActivity)))
@@ -316,6 +337,7 @@ print(list("Summary of PhysicalActivity"= summary(diabetes_df$PhysActivity)))
 ```
 
 the ratio of "No" to "Yes" responses is approximately 6:19 which is slightly less than 1:3. This suggests that differences between the **HasDiabetes** groups may be influenced by the number of "Yes" **PhysActivity** observations. Review of a bar plot of **PhysActivity** with respect to **HasDiabetes** shows
+
 ```{r Bar plot of PhysActivity by HasDiabetes}
 
 PhysActivity_by <- diabetes_df |>
@@ -332,9 +354,10 @@ PhysActivity_plot
 
 ```
 
-**PhysActivity** is greater in both **HasDiabetes** groups. The "No" **HeartDisease** group has a "No" to "Yes" **PhysActivity** ratio of approximately 5:17 which is slightly less than 1:3. The "Yes" **HeartDisease** group has a "No" to "Yes" **PhysActivity** ratio of approximately 13:22 which is slightly greater than 1:2. This change in ratios shows that there is a relationship between the variables. The relationship appears to be one where someone having diabetes can be used to predict if they participate in physical activity or not, which is not what we're trying to predict. **PhysActivity** does not appear to be suitable for inclusion in the prediction model. 
+**PhysActivity** is greater in both **HasDiabetes** groups. The "No" **HeartDisease** group has a "No" to "Yes" **PhysActivity** ratio of approximately 5:17 which is slightly less than 1:3. The "Yes" **HeartDisease** group has a "No" to "Yes" **PhysActivity** ratio of approximately 13:22 which is slightly greater than 1:2. This change in ratios shows that there is a relationship between the variables. The relationship appears to be one where someone having diabetes can be used to predict if they participate in physical activity or not, which is not what we're trying to predict. **PhysActivity** does not appear to be suitable for inclusion in the prediction model.
 
 The next variable we're going to summarize is **ConsumesFruits**. Review of the variable summary information shows
+
 ```{r ConsumesFruits summary}
 
 print(list("Summary of ConsumesFruits"=summary(diabetes_df$ConsumesFruits)))
@@ -342,6 +365,7 @@ print(list("Summary of ConsumesFruits"=summary(diabetes_df$ConsumesFruits)))
 ```
 
 that **ConsumesFruits** has a "No" to "Yes" ratio of approximately 9:16, which is slightly greater than a 1:2 distribution. Review of a bar graph of **ConsumesFruits** with respect to **HasDiabetes** shows
+
 ```{r Bar plot of ConsumesFruits by HasDiabetes}
 
 ConsumesFruits_by <- diabetes_df |>
@@ -359,9 +383,10 @@ ConsumesFruits_plot
 
 ```
 
-that both groups of **HasDiabetes** have a greater number of "Yes" **ConsumesFruits** observations. The "No" **HasDiabetes** group has a "No" to "Yes" **ConsumesFruits** ratio of approximately 8:14 which is slightly greater than 1:2. The "Yes" **HasDiabetes** group has a "No" to "Yes" **ConsumesFruits** ratio of approximately 15:21 which is slightly greater than 2:3. This change in ratios shows that there is a relationship between the variables. However, the relationship appears to be one where someone having diabetes can be used to predict if they eat fruits or not, which is not what we're tyring to predict. **ConsumesFruits** does not appear to be suitable for inclusion in the prediction model. 
+that both groups of **HasDiabetes** have a greater number of "Yes" **ConsumesFruits** observations. The "No" **HasDiabetes** group has a "No" to "Yes" **ConsumesFruits** ratio of approximately 8:14 which is slightly greater than 1:2. The "Yes" **HasDiabetes** group has a "No" to "Yes" **ConsumesFruits** ratio of approximately 15:21 which is slightly greater than 2:3. This change in ratios shows that there is a relationship between the variables. However, the relationship appears to be one where someone having diabetes can be used to predict if they eat fruits or not, which is not what we're tyring to predict. **ConsumesFruits** does not appear to be suitable for inclusion in the prediction model.
 
-The next variabel we're going to summarize is **ConsumesVeggies*. Review of the variable summary information shows
+The next variabel we're going to summarize is \*\*ConsumesVeggies\*. Review of the variable summary information shows
+
 ```{r ConsumesVeggies summary}
 
 print(list("Summary of ConsumesVeggies"=summary(diabetes_df$ConsumesVeggies)))
@@ -369,6 +394,7 @@ print(list("Summary of ConsumesVeggies"=summary(diabetes_df$ConsumesVeggies)))
 ```
 
 that the proporiton of "No" to "Yes" responses is approximately 5:21 which is slightly less than 1:4. Review of a bar plot of **ConsumesVeggies** with respect to **HasDiabetes** shows
+
 ```{r Bar plot of ConsumesVeggies by HasDiabetes}
 
 ConsumesVeggies_by <- diabetes_df |>
@@ -385,16 +411,18 @@ ConsumesVeggies_plot
 
 ```
 
-that the "Yes" **ConsumesVeggies** observations are substantially greater in both categories of **HasDiabetes**. The "No" **HasDiabetes** group has a "No" to "Yes" **ConsumesVeggies** ratio of approximately 2:9 which is slightly less than 1:4. The "Yes" **HasDiabetes** group has a "No" to "Yes" **ConsumesVeggies** ratio of approximately 1:3. The change in ratios between the **HasDiabetes** groups shows that there is a relationship between the variables. However, the relationship appears to be one where someone having diabetes can be used to predict if they eat vegetables or not, which is not what we're trying to predict. **ConsumesVeggies** does not appear to be suitable for inclusion in the prediction model. 
+that the "Yes" **ConsumesVeggies** observations are substantially greater in both categories of **HasDiabetes**. The "No" **HasDiabetes** group has a "No" to "Yes" **ConsumesVeggies** ratio of approximately 2:9 which is slightly less than 1:4. The "Yes" **HasDiabetes** group has a "No" to "Yes" **ConsumesVeggies** ratio of approximately 1:3. The change in ratios between the **HasDiabetes** groups shows that there is a relationship between the variables. However, the relationship appears to be one where someone having diabetes can be used to predict if they eat vegetables or not, which is not what we're trying to predict. **ConsumesVeggies** does not appear to be suitable for inclusion in the prediction model.
 
 The next variable we're going to summarize is **HeavyAlcoholUse**. Review of the variable summary information shows
+
 ```{r HeavyAlcoholUse summary}
 
 print(list("Summary of HeavyAlcoholUse"=summary(diabetes_df$HeavyAlcoholUse)))
 
 ```
 
-shows that the ratio of "No" to "Yes" responses is approximately 24:1. This suggests that any differences between the **HasDiabetes** groups may be influenced by the number of observations. Reviewing the bar plot of **HeavyAlcoholUse** with respect to **HeartDisease* shows
+shows that the ratio of "No" to "Yes" responses is approximately 24:1. This suggests that any differences between the **HasDiabetes** groups may be influenced by the number of observations. Reviewing the bar plot of **HeavyAlcoholUse** with respect to \*\*HeartDisease\* shows
+
 ```{r Bar plot of HeavyAlcoholUse by HeartDisease}
 
 HeavyAlcoholUse_by <- diabetes_df |>
@@ -412,9 +440,10 @@ HeavyAlcoholUse_plot
 
 ```
 
-that the "No" **HeavyAlcoholUse** responses constitute the majority of observations in both **HasDiabetes** groups. The "No" **HasDiabetes** group has a "No" to "Yes" **HeavyAlcoholUse** ratio of approximately 205:13 which reduces close to 16:1. The "Yes" **HasDiabetes** group has a "No" to "Yes" **HeavyAlcoholUse** ratio of approximately 345:8 which reduces close to 43:1. The change in ratios shows that there is a relationship between the variables. However, the relationship appears to be one where someone having diabetes can be used to predict if they consume alcohol heavily, which is not what we're trying to predict. **HeavyAlcoholUse** does not appear to be suitable for inclusion in the prediction model. 
+that the "No" **HeavyAlcoholUse** responses constitute the majority of observations in both **HasDiabetes** groups. The "No" **HasDiabetes** group has a "No" to "Yes" **HeavyAlcoholUse** ratio of approximately 205:13 which reduces close to 16:1. The "Yes" **HasDiabetes** group has a "No" to "Yes" **HeavyAlcoholUse** ratio of approximately 345:8 which reduces close to 43:1. The change in ratios shows that there is a relationship between the variables. However, the relationship appears to be one where someone having diabetes can be used to predict if they consume alcohol heavily, which is not what we're trying to predict. **HeavyAlcoholUse** does not appear to be suitable for inclusion in the prediction model.
 
 The next variable we're going to summarize is **HasHealthcare**. Review of the variable summary information
+
 ```{r }
 
 print(list("Summary of HasHealthcare"=summary(diabetes_df$HasHealthcare)))
@@ -422,6 +451,7 @@ print(list("Summary of HasHealthcare"=summary(diabetes_df$HasHealthcare)))
 ```
 
 shows that the ratio of "No" to "Yes" observations is approximately 12:241 which is close to a 1:20 ratio. This is suggestive that any differences between the **HasDiabetes** categories may be heavily influenced by the number of responses in each. Reviewing the bar chart of **HasHealthcare** with respect to **HasDiabetes** shows
+
 ```{r}
 
 HasHealthcare_by <- diabetes_df |>
@@ -438,16 +468,18 @@ HasHealthcare_plot
 
 ```
 
-the "Yes" **HasHealthcare** observations are substantially higher than the "No" responses for both categories of **HasDiabetes*. The "No" **HasDiabetes** group has a "No" to "Yes" **HasHealthcare** ratio of approximately 11:207 which reduces close to 1:19. The "Yes" **HasDiabetes** group has a "No" to "Yes" **HasHealthcare** ratio of approximately 14:339 which reduces close to 1:24. The ratios in both groups of **HasDiabetes** do not differ much from the overall **HasHealthcare** variable ratio of 1:20. **HasHealthcare** does not appear to be suitable for inclusion in the prediction model. 
+the "Yes" **HasHealthcare** observations are substantially higher than the "No" responses for both categories of \*\*HasDiabetes\*. The "No" **HasDiabetes** group has a "No" to "Yes" **HasHealthcare** ratio of approximately 11:207 which reduces close to 1:19. The "Yes" **HasDiabetes** group has a "No" to "Yes" **HasHealthcare** ratio of approximately 14:339 which reduces close to 1:24. The ratios in both groups of **HasDiabetes** do not differ much from the overall **HasHealthcare** variable ratio of 1:20. **HasHealthcare** does not appear to be suitable for inclusion in the prediction model.
 
 The next variable we're going to summarize is **ExpensiveTreatment**. Review of the variable summary information
-```{r } 
+
+```{r }
 
 print(list("Summary of ExpensiveTreatment"=summary(diabetes_df$ExpensiveTreatment)))
 
 ```
 
-that the ration of "No" to "Yes" observations is approximately 232:21 which reduces near 11:1. This is suggestive that any differences between the **HasDiabetes** categories may be heavily influenced by the number of repsonses in each. Reviwing the bar chart of **ExpensiveTreatment** with respect to **HasDiabetes** shows 
+that the ration of "No" to "Yes" observations is approximately 232:21 which reduces near 11:1. This is suggestive that any differences between the **HasDiabetes** categories may be heavily influenced by the number of repsonses in each. Reviwing the bar chart of **ExpensiveTreatment** with respect to **HasDiabetes** shows
+
 ```{r}
 
 ExpensiveTreatment_by <- diabetes_df |>
@@ -465,9 +497,10 @@ ExpensiveTreatment_plot
 
 ```
 
-the "No" observations are substantially greater than the "Yes" responses for both categories of **HasDiabetes**. The "No" **HasDiabetes** group has a "No" to "Yes" **ExpensiveTreatment** ratio of approximately 201:17 which reduces close to 12:1. The "Yes" **HasDiabetes** group has a "No" to "Yes" **ExpensiveTreatment** ratio of approximately 316:37 which reduces close to 9:1. There appears to be a relationship between the variables where someone with diabetes has a greater likelihood of not seeking treatment due to the cost, but that is not what we're trying to predict. **ExpensiveTreatment** does not appear to be suitbale for inclusion in the prediciton model. 
+the "No" observations are substantially greater than the "Yes" responses for both categories of **HasDiabetes**. The "No" **HasDiabetes** group has a "No" to "Yes" **ExpensiveTreatment** ratio of approximately 201:17 which reduces close to 12:1. The "Yes" **HasDiabetes** group has a "No" to "Yes" **ExpensiveTreatment** ratio of approximately 316:37 which reduces close to 9:1. There appears to be a relationship between the variables where someone with diabetes has a greater likelihood of not seeking treatment due to the cost, but that is not what we're trying to predict. **ExpensiveTreatment** does not appear to be suitbale for inclusion in the prediciton model.
 
 The next variable we're going to summarize is **GeneralHealth**. Review of the variable summary information
+
 ```{r }
 
 print(list("Summary of GeneralHealth"=summary(diabetes_df$GeneralHealth)))
@@ -475,6 +508,7 @@ print(list("Summary of GeneralHealth"=summary(diabetes_df$GeneralHealth)))
 ```
 
 shows that the majority of patients reported being in "Excellent" to "Good" health. Reviewing the bar chart of **GeneralHealth** with respect to **HasDiabetes** shows
+
 ```{r}
 
 GeneralHealth_by <- diabetes_df |>
@@ -492,6 +526,7 @@ GeneralHealth_plot
 ```
 
 that there is a shift in the reporting tendencies between the **HasDiabetes** categories. The "No" **HasDiabetes** group has a central tendency of "Very Good" followed by "Good" **GeneralHealth** responses while the "Yes" **HasDiabetes** group has a central tendency of "Good" followed by "Fair" **GeneralHealth** responses
+
 ```{r}
 
 NoDiabetes_high_three <- sum(GeneralHealth_by$count[1:3])/sum(GeneralHealth_by$count[1:5])
@@ -504,18 +539,20 @@ print(list("GeneralHealth 1 through 3, HasDiabetes in 'No'"=NoDiabetes_high_thre
 
 ```
 
-Review of the **GeneralHealth** response proportions in the "No" **HasDiabetes** group shows that over 86.59% of the observations reported having a **GeneralHealth** status of "Good" or better for the three highest responses with the 4th highest response of "Fair" accounting for another 9.98% of group responses. Review of the **GeneralHealth** response proportions in the "Yes" **HasDiabetes** shows that over 83.82% of the observations reported having a **GeneralHealth** status of "Very Good" to "Fair" for the three highest responses with the fourth highest response of "Poor" accounting for another 9.98% of group responses. The shift in **GeneralHealth** tendency between the **HasDiabetes** groups suggests that there is a relationship between the variables. **GeneralHealth** appears to be a suitable variable for prediciton modeling. 
+Review of the **GeneralHealth** response proportions in the "No" **HasDiabetes** group shows that over 86.59% of the observations reported having a **GeneralHealth** status of "Good" or better for the three highest responses with the 4th highest response of "Fair" accounting for another 9.98% of group responses. Review of the **GeneralHealth** response proportions in the "Yes" **HasDiabetes** shows that over 83.82% of the observations reported having a **GeneralHealth** status of "Very Good" to "Fair" for the three highest responses with the fourth highest response of "Poor" accounting for another 9.98% of group responses. The shift in **GeneralHealth** tendency between the **HasDiabetes** groups suggests that there is a relationship between the variables. **GeneralHealth** appears to be a suitable variable for prediciton modeling.
 
 The next variable we're going to summarize is **BadMentalHealth**. Review of the variable summary information
+
 ```{r}
 
 print(list("Summary of BadMentalHealth"=summary(diabetes_df$BadMentalHealth)))
 
 ```
 
-shows that there is a tendency for the PTs to report that their mental health was not good for zero days. 
+shows that there is a tendency for the PTs to report that their mental health was not good for zero days.
 
 Review of a histogram of the variable along with histograms of **MentalHealth** with respect to **HasDiabetes** shows
+
 ```{r}
 BadMentalHealth_histogram <- ggplot(diabetes_df, aes(BadMentalHealth)) +
   geom_histogram(aes(y=..density..), binwidth=1, fill="#CC0000", color="lightgray") +
@@ -537,6 +574,7 @@ BadMentalHealth_by_histplot
 ```
 
 that the majority of the observations in both categories of **HasDiabetes** follow the similar trend where the majority of non-zero values in **BadMentalHealth** are in the range of 1-10 days. After remvoing the zero values for analysis, we compared the proportions of 10-day **BadMentalHealth** ranges between the **HasDiabetes** groups.
+
 ```{r}
 
 BadMentalHealth_by_nozero <- diabetes_df |>
@@ -561,9 +599,10 @@ print(c(HasDiabetesNo_first_ten, HasDiabetesYes_first_ten, HasDiabetesNo_middle_
 
 ```
 
-The comparisons showed that the "No" **HasDiabetes** group had a 70% of their **BadMentalHealth** responses in the 1-10 day range while the "Yes" **HasDiabetes** group only had a 56.2% of their **BadMentalHealth** responses in the same range. Likewise, the "Yes" **HasDiabetes** group had higher percentages of responses in both the 11-20 day and 21-30 day **BadMentalHealth** ranges than the "No" **HasDiabetes** group. The change in "0" response density between the **HasDiabetes** groups appears to have shifted to longer periods of PTs with diabetes experiencing mental health that is not good. This shows that there is a relationship between the variables. **BadMentalHealth** appears to be suitable for prediction modeling. 
+The comparisons showed that the "No" **HasDiabetes** group had a 70% of their **BadMentalHealth** responses in the 1-10 day range while the "Yes" **HasDiabetes** group only had a 56.2% of their **BadMentalHealth** responses in the same range. Likewise, the "Yes" **HasDiabetes** group had higher percentages of responses in both the 11-20 day and 21-30 day **BadMentalHealth** ranges than the "No" **HasDiabetes** group. The change in "0" response density between the **HasDiabetes** groups appears to have shifted to longer periods of PTs with diabetes experiencing mental health that is not good. This shows that there is a relationship between the variables. **BadMentalHealth** appears to be suitable for prediction modeling.
 
 The next variable we're going to summarize is **BadPhysicalHealth**. Review of the variable summary information
+
 ```{r}
 
 print(list("Summary of PhysicalHealth"=summary(diabetes_df$BadPhysicalHealth)))
@@ -571,6 +610,7 @@ print(list("Summary of PhysicalHealth"=summary(diabetes_df$BadPhysicalHealth)))
 ```
 
 shows that like **BadMentalHealth**, the vast majority of **BadPhysicalHealth** responses provided were "0". Reviewing a density plot histogram of **BadPhysicalHealth** along with histogram plots of **BadPhysicalHealth** with respect to **HasDiabetes** show
+
 ```{r}
 
 BadPhysicalHealth_histogram <- ggplot(diabetes_df, aes(BadPhysicalHealth)) +
@@ -592,7 +632,8 @@ BadPhysicalHealth_by_histplot
 
 ```
 
-that like with **BadMentalHealth**, the density of the **BadPhysicalHealth** "0" response changes between the **HasDiabetes** groups. The general trend is that when compared to the "No" **HasDiabetes** group the "Yes" **HasDiabetes** densities in the 0-7 day range are lower and then overall higher among the remaining groups. Comparing the proportions of the 0-7day ranges to the 8-30 day ranges  
+that like with **BadMentalHealth**, the density of the **BadPhysicalHealth** "0" response changes between the **HasDiabetes** groups. The general trend is that when compared to the "No" **HasDiabetes** group the "Yes" **HasDiabetes** densities in the 0-7 day range are lower and then overall higher among the remaining groups. Comparing the proportions of the 0-7day ranges to the 8-30 day ranges
+
 ```{r}
 
 BadPhysicalHealth_by <- diabetes_df |>
@@ -611,9 +652,10 @@ print(c(BadPhysHlth_DiabetesNo_firstSeven, BadPhysHlth_DiabetesYes_firstSeven, B
 
 ```
 
-confirms that the visual assessments are correct. The "No" **HasDiabetes** group is 6.4 percentage points higher in the **BadPhysicalHealth** 0-7 day range compared to the "Yes" **HasDiabetes** group. This change in **HasDiabetes** suggests that there is a relationship between the variables. **BadPhysicalHealth* appears to be suitable for prediction modeling. 
+confirms that the visual assessments are correct. The "No" **HasDiabetes** group is 6.4 percentage points higher in the **BadPhysicalHealth** 0-7 day range compared to the "Yes" **HasDiabetes** group. This change in **HasDiabetes** suggests that there is a relationship between the variables. \*\*BadPhysicalHealth\* appears to be suitable for prediction modeling.
 
 The next variable we're going to summarize is **DifficultyWalking**. Reviewing the variable summary
+
 ```{r}
 
 print(list("Summary of DifficultyWalking"=summary(diabetes_df$DifficultyWalking)))
@@ -621,6 +663,7 @@ print(list("Summary of DifficultyWalking"=summary(diabetes_df$DifficultyWalking)
 ```
 
 shows that the majority of PTs reported "No" at a ratio of approximately 211:43, which reduces to slightly less than 5:1. This suggests that any differences in the **HasDiabetes** groups will be highly influenced by the number of PTs in each. Reviewing the bar plot of **DifficultyWalking** with respect to **HasDiabetes** shows
+
 ```{r}
 
 
@@ -639,9 +682,10 @@ DifficultyWalking_plot
 
 ```
 
-that the majority of responses in both **HasDiabetes** groups fall under the "No" **DifficultyWalking** group. The observations in the "No" **HasDiabetes** category have a "No" to "Yes" **DifficultyWalking** ratio of approximately 188:30 which simplifies down to a ratio slightly greater than 6:1. The observations in the "Yes" **HasDiabetes** category have a "No" to "Yes" **DifficultyWalking** ratio of approximately 222:131 which simplifies down to closer to 2:1 than 1:1. The change in ratios suggests that there is a relationship between the variabels. However, the relationship appears to be one where someone having diabetes or not can help predict if they'll have difficulty walking, but that is not what we're trying to predict. **DifficultyWalking** does not appear to be a suitable variable for our prediction model. 
+that the majority of responses in both **HasDiabetes** groups fall under the "No" **DifficultyWalking** group. The observations in the "No" **HasDiabetes** category have a "No" to "Yes" **DifficultyWalking** ratio of approximately 188:30 which simplifies down to a ratio slightly greater than 6:1. The observations in the "Yes" **HasDiabetes** category have a "No" to "Yes" **DifficultyWalking** ratio of approximately 222:131 which simplifies down to closer to 2:1 than 1:1. The change in ratios suggests that there is a relationship between the variabels. However, the relationship appears to be one where someone having diabetes or not can help predict if they'll have difficulty walking, but that is not what we're trying to predict. **DifficultyWalking** does not appear to be a suitable variable for our prediction model.
 
 The next variable we're going to summarize is **Sex**. Reviewing the variable summary
+
 ```{r}
 
 print(list("Summary of Sex"=summary(diabetes_df$Sex)))
@@ -649,6 +693,7 @@ print(list("Summary of Sex"=summary(diabetes_df$Sex)))
 ```
 
 shows that the distribution between the categories is almost uniform at a female to male ratio of approximately 142:111 which simplifies to a ratio slightly greater than 1:1. Reviewing the bar plot of **Sex** with respect to **HasDiabetes** shows
+
 ```{r}
 
 Sex_by <- diabetes_df |>
@@ -665,9 +710,10 @@ Sex_plot
 
 ```
 
-that the number of females is greater in both **HasDiabetes** groups. The observations in the "No" **HasDiabetes** category have a "No" to "Yes" **Sex** ratio of approximately 124:95 which simplifies down to a ratio of slightly greater than 1:1. The observations in the "Yes" **HasDiabetes** category have a "No" to "Yes" **Sex** ratio of approximately 184:169 which also simplifies down to a ratio slightly greater than 1:1. The difference between the groups is minimal which suggests there is not a relationship between the variables. **Sex** does not appear suitable for our prediciton model. 
+that the number of females is greater in both **HasDiabetes** groups. The observations in the "No" **HasDiabetes** category have a "No" to "Yes" **Sex** ratio of approximately 124:95 which simplifies down to a ratio of slightly greater than 1:1. The observations in the "Yes" **HasDiabetes** category have a "No" to "Yes" **Sex** ratio of approximately 184:169 which also simplifies down to a ratio slightly greater than 1:1. The difference between the groups is minimal which suggests there is not a relationship between the variables. **Sex** does not appear suitable for our prediciton model.
 
-The next variable we're going to summarize is **Age**. Review of the variable summary 
+The next variable we're going to summarize is **Age**. Review of the variable summary
+
 ```{r}
 
 print(list("Summary of Age"=summary(diabetes_df$Age)))
@@ -675,6 +721,7 @@ print(list("Summary of Age"=summary(diabetes_df$Age)))
 ```
 
 shows that there is a trend where the number of responses increase in each category until group 9 (60-64), where they then decrease as from category 10 to 12 with group 13 being slightly higher than group 12. Reviewing histograms of **Age** with respect to **HasDiabetes** shows
+
 ```{r}
 
 Age_by <- diabetes_df |>
@@ -692,6 +739,7 @@ Age_plot
 ```
 
 that there a shift in distribution between the **HasDiabetes** groups. The "No" **HasDiabetes** group has central tendency around resonse "9" while the "Yes" **HasDiabetes** group has a central tendency around response "10". Review of a summary table of the proportions between the **HasDiabetes** categories by groups shows
+
 ```{r}
 
 AgeGrp <- Age_by$Age[1:13]
@@ -714,18 +762,18 @@ print(list("Cummulative Proportion of 3 largest Age groups, HasDiabetes - No"=pr
 
 ```
 
-that not only did the distributions shift between the age groups, but the highest three **Age** categories (8-10) in the "No" **HasDiabetes** group account for 36.51% of the group data while the highest three **Age** categories (9-11) in the "Yes" **HasDiabetes** category account for 49.32% of the group data. These shifts in proportions suggest that there is a relationship between the variables. **Age** appears to be suitable for prediction modeling. 
+that not only did the distributions shift between the age groups, but the highest three **Age** categories (8-10) in the "No" **HasDiabetes** group account for 36.51% of the group data while the highest three **Age** categories (9-11) in the "Yes" **HasDiabetes** category account for 49.32% of the group data. These shifts in proportions suggest that there is a relationship between the variables. **Age** appears to be suitable for prediction modeling.
 
-The next variabel we're going to summarize is **Education**. Review of the variable summary information 
+The next variabel we're going to summarize is **Education**. Review of the variable summary information
+
 ```{r}
 
 print(list("Summary of Education"=summary(diabetes_df$Education)))
 
-print(proportion(diabetes_df$Education[1:6]))
-
 ```
 
 shows that the responses increased in each category with the majority of observations belonging to category 6 (College 4yrs or more (College graduate)). Reviewing the bar plot of **Education** with respect to **HasDiabetes** shows
+
 ```{r}
 
 Education_by <- diabetes_df |>
@@ -743,16 +791,18 @@ Education_plot
 
 ```
 
-shows that there is a definite change in the ratios of the **Education** gropus between the **HasDiabetes** groups. The "No" **HasDiabetes** group follows the same trend as the overall data while the "Yes" **HasDiabetes** group has a fairly uniform distribution between categories 4, 5, and 6. There does appear to be a relationship between the variables where we could determine there was a high probability that someone with diabetes has a high probability of having a high school diploma, GED, or higher education but the data does not lend itself to determining if a given education level can be used to predict if someone has diabetes. **Education** does not appear to be suitable for prediciton analysis. 
+shows that there is a definite change in the ratios of the **Education** gropus between the **HasDiabetes** groups. The "No" **HasDiabetes** group follows the same trend as the overall data while the "Yes" **HasDiabetes** group has a fairly uniform distribution between categories 4, 5, and 6. There does appear to be a relationship between the variables where we could determine there was a high probability that someone with diabetes has a high probability of having a high school diploma, GED, or higher education but the data does not lend itself to determining if a given education level can be used to predict if someone has diabetes. **Education** does not appear to be suitable for prediciton analysis.
 
 The last variable that we're going to summarize is **Income**. Review of the variable summary information
+
 ```{r}
 
 print(list("Summary of Income"=summary(diabetes_df$Income)))
 
 ```
 
-shows that the number of responses increase as the categories increase, with the largest group earning $75K per year or more. Reviewing a bar plot of **Income** with respect to **HasDiabetes** shows
+shows that the number of responses increase as the categories increase, with the largest group earning \$75K per year or more. Reviewing a bar plot of **Income** with respect to **HasDiabetes** shows
+
 ```{r}
 
 Income_by <- diabetes_df |>
@@ -769,4 +819,6 @@ Income_plot
 
 ```
 
-that there is a shift in proportions of **Income** group categories between the **HasDiabetes** groups. The **Income** groups with "No" **HasDiabetes** responses appear to have a quadratic relationship with a large positive slope between groups 7 and 8. The **Income** groups with "Yes" **HasDiabetes** responses appear to have a linear relationship with a small positive slope. There appears to be a relationship between the variables where a person with diabetes has a greater probability of earning less than $75K pe year, but that is not what we're trying ot predcit. **Income** does not appear to be suitable for prediciton modeling. 
+that there is a shift in proportions of **Income** group categories between the **HasDiabetes** groups. The **Income** groups with "No" **HasDiabetes** responses appear to have a quadratic relationship with a large positive slope between groups 7 and 8. The **Income** groups with "Yes" **HasDiabetes** responses appear to have a linear relationship with a small positive slope. There appears to be a relationship between the variables where a person with diabetes has a greater probability of earning less than \$75K pe year, but that is not what we're trying ot predcit. **Income** does not appear to be suitable for prediction modeling.
+
+Next, we will use the above information to generate prediction models 
