@@ -886,7 +886,7 @@ that there is a shift in proportions of **Income** group categories between the 
 
 Now that we have identified the variables with relationships to **HasDiabetes**, we will consider if they are independent from one another. Review of a heat plot of **HasDiabetes** compared to the six predictor variables shows
 
-```{r generate correlation matrix}
+```{r generate correlation matrix, warning=FALSE, message=FALSE}
 
 diabetes_df_model <- diabetes_df |>
   select(HasDiabetes, HighCholesterol, BMI, GeneralHealth, BadMentalHealth, BadPhysicalHealth, Age) 
