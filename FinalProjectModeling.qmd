@@ -9,28 +9,76 @@ editor: visual
 
 ### Introduction
 
-1.  Start with a basic introduction (it is permissible to repeat things from EDA file)
+The diabetes binary health indicators file is a subset of 22 variables and 253,690 responses to questions asked of as part of the Behavioral Risk Factor Surveillance System (BHFSS) survey conducted in 2015.
 
--   Variables identified as being candidates for prediction modeling: **HighBP**, **HighCholesterol**, **BMI**, **GeneralHealth**, **BadMentalHealth**, **BadPhysicalHealth**, and **Age**.
+In our EDA we identified that the variables of **HighBP**, **HighCholesterol**, **BMI**, **GeneralHealth**, **BadMentalHealth**, **BadPhysicalHealth**, and **Age** each had a relationship with **HasDiabetes** that could be used to predict the outcome of **HasDiabetes**. Our EDA identified that the variables **Stroke**, **HeartDiseaseorAttack**, **PhysActivity**, **ConsumesFruits**, **ConsumesVeggies**, **HeavyAlcoholUse**, **ExpensiveTreatment**, **DifficultyWalking**, and **Income** each had a relationship with **HasDiabetes** where **HasDiabetes** would be a predictor variable for them. This is not what we're tyring to model so the varaibels will be excluded. We also identified that variables **HasHealthcare**, and **Education** did not have a distinguishable relationship with **HasDiabetes**. **BMI** appeared to be the only variable with outliers.  These were removed from the data set before conducting EDA on the remaining variables. 
 
--   Variables identified as needing outliers removed: **BMI**
+The goal of our modeling is to predict **HasDiabetes** using the `caret` package and `logLoss` as the metric for evaluation of how well our models predict the actual value of **HasDiabetes*. LogLoss is the negative average of the natural log of each observation's difference from the predicted probability. LogLoss provides a metric for determining how much error exists in a classification prediction model in a similar way MSE determines how much error exists in a linear regression prediction model. What makes LogLoss a preferred method of comparison over model accuracy is that LogLoss takes predicted probability into account when determining average error in a classification prediction model while accuracy only accounts for the proportion of correct/incorrect predictions created by the model.  
+
+First, lets establish the library of functions we will use to split our data set and generate our prediction models. 
+
+```{r warning=FALSE, message=FALSE}
+
+library(tidyverse)
+library(caret)
+
+```
+
+Next, we will read in the data file, remove variables identified as not suitable for prediction modeling during our EDA, remove outliers, update variable names, and ensure the classification variables are changed to factors. The resulting data frame is 
+
+```{r Dataframe set-up}
+
+# Read in the raw data file, select variables for modeling, set-up variable 
+# names, remove outliers. This is done to ensure the modeling page works
+# independent of the EDA page.  
+
+diabetes_df_model <- read.csv("./FinalProjectRawData/diabetes_binary_health_indicators_BRFSS2015.csv")
+
+diabetes_df_model <- as_tibble(diabetes_df_model)
+
+diabetes_df_model <- diabetes_df_model |>
+  select(Diabetes_binary, HighChol, BMI, PhysHlth, Age) |>
+  filter(BMI >= 13.5) |>
+  filter(BMI <= 50 ) |>
+  rename("HasDiabetes" = Diabetes_binary, 
+         "HighCholesterol" = HighChol, 
+         "BadPhysicalHealth" = PhysHlth) |>
+  mutate(across(c(1, 2, 5), as.factor)) 
+   
+str(diabetes_df_model)
+
+```
+
+We see from the structure of our subset that the data frame was converted properly and we're ready to continue preparing the data for prediction modeling. Next we will split the data frame into training and test subsets. We will use 70% of the data set for the training model and 30% of the data set for testing our model. 
 
 ```{r Split the df for training & testing}
 
 # 70/30 split for training/testing subsets
 # Use set.seed() to make things reproducible 
 
+set.seed(1)
+
+# Create the model index for partitioning the data 
+modelingIndex <- createDataPartition(diabetes_df_model$HasDiabetes, p=.7, list=FALSE)
+
+# Create the training set
+modelingTrain <- diabetes_df_model[modelingIndex, ]
+
+# Create the test set
+modelingTest <- diabetes_df_model[-modelingIndex, ]
+
+# Output the dimensions to ensure the data subsets populated correctly
+print(list("Traning Data"=dim(modelingTrain), "Test Data"=dim(modelingTest)))
+
 ```
 
-2.  The goal is to create models for predicting the Diabetes_binary variable (using **caret**).
-
-2.1. Use logLoss with 5 fold cross-validation to select the best model.
-
-2.2. Research and write-up a paragraph about what log loss is and why we may prefer it to accuracy when predicting a binary response variable.
+Review of the dimensions of both subsets shows that we successfully split the data and are ready to start generating our prediction models. 
 
 ### Logistic Regression Models
 
-1.  Provide a reasonably thorough explanation of what a logsistic regression model is and why we apply it to this kind of data (response variable).
+The first prediction model type we're going to generate is a logistic regression model. Logistic regression is the estimated probability of an event occurring when considering other variables involved. It is widely used in prediction modeling when a dependent variable of interest has binary outcomes. For our prediction model, we will be the estimating the probability of a PT having diabetes with consideration of the variables **HighCholesterol**, **BMI**, **BadPhysicalHealth**, and **Age** to predict a "Yes" response in the **HasDiabetes** variable. 
+
+There are several different logistic regression models (LRMs) that are in the `caret` package. Because of this, we are going to select three types of LRMs and compare them to determine which one we will use for comparison against a Classification Tree and Random Forest prediction models that we will generate later in this report. 
 
 2.  Fit three candidate logistic regression models and choose the best model using CV with log-loss as the metric.
 

@@ -9,27 +9,84 @@ editor: visual
 
 ### Introduction
 
-1.  Briefly describe the data and variables we have to work with (only the ones that will be investigated/used in analysis)
+#### Diabetes Binary Health Indicators
 
-2.  Describe the purpose of the EDA and ultimate goal of modeling
+The diabetes binary health indicators file is a subset of 22 variables and 253,690 responses to questions asked of as part of the Behavioral Risk Factor Surveillance System (BHFSS) survey conducted in 2015.
+
+The variables on the binary health indicators file are:
+
+-   **HasDiabetes** is the target variable that we want to predict. It is a categorical variable with levels "0" for "No diabetes", "1" for "Pre-diabetes", and "2"" for "Diabetes"". This variable has been renamed from the initial name of **Diabetes_binary**. 
+
+-   **HighBP** is a categorical variable with levels "0" for "No high BP" and "1" for "High BP".
+
+-   **HighCholesterol** is a categorical variable with levels "0" for "No High Cholesterol" and "1" for "High Cholesterol". This variable has been renamed from the initial name of **HighChol**. 
+
+-   **CholesterolChecked** is a categorical variable with levels "0" for "No cholesterol check in 5 years" and "1" for "Cholesterol check in 5 years". This variable has been renamed from the initial name of **CholCheck**. 
+
+-   **BMI** is a discrete numeric variable indicating the BMI level of the PT observed.
+
+-   **Smoker** is a factor variable with levels "0" for "No" and "Yes" as responses to the question "Have you smoked at least 100 cigarettes in your life?".
+
+-   **Stroke** is a categorical variable with levels "0" for "No" and "1" for "Yes" as reponses to the question "Have you ever had or been told you had a stroke?".
+
+-   **HeartDiseaseorAttack** is a categorical variable with levels "0" for "No" and "1" for "Yes" to the question "Does the PT have coronary heart disease (CHD) or myocardial infraction (MI)?".
+
+-   **PhysActivity** is a categorical variable with levels "0" for "No" and "1" for "Yes" to the question "Not including your job, have you participated in physical activity in the past 30 days?".
+
+-   **ConsumesFruits** is a categorical variable with levels "0" for "No" and "1" for "Yes" to the question "Do you consume fruit 1 or more times per day?". This variable has been renamed from the initial name of **Fruits**. 
+
+-   **ConsumesVeggies** is a categorical variable with levels "0" for "No" and "1" for "Yes" to the question "Do you consume vegetables 1 or more times per day?". This variable has been renamed from the initial name of **Veggies**. 
+
+-   **HeavyAlcoholUse** is a categorical variable with levels "0" for "No" and "1" for "Yes" to the question "How many drinks do you consume each week?". Men responding to the question were placed in the "Yes" category if they consumed 14 or more alcoholic drinks in a week, otherwise they were placed in the "No" category. Women responding to the question were placed in the "Yes" category if they consumed 7 or more alcoholic drinks in a week, otherwise they were placed in the "No" category. This variable has been renamed from the initial name of **HvyAlcoholConsump**. 
+
+-   **HasHealthcare** is a categorical variable with levels "0" for "No" and "1" for "Yes" to the question "Do you have any kind of health care coverage?". Responses stating the individual had health insurance or prepaid plans were grouped into the "Yes" category. This variable has been renamed from the initial name of **AnyHealthcare**. 
+
+-   **ExpensiveTreatment** is a categorical variable with levels "0" for "No" and "1" for "Yes" to the question "Was there a time in the past 12 months when you needed to see a doctor but could not because of cost?". This variable has been renamed from the initial name of **NoDocbcCost**. 
+
+-   **GeneralHealth** is a categorical variable with response levels "1" for "Excellent", "2" for "Very Good", "3 for "Good", "4" for "Fair", and "5" for "Poor" to the question "Would you say your general health is...?". This variable has been renamed from the initial name of **GenHlth**. 
+
+-   **BadMentalHealth** is a categorical variable with levels "0" through "30" as responses to the question "Over the last 30 days, how many did you experience poor mental health". Given the thirty different possible responses, it may be suitable to treat **BadMentalHealth** as a numeric variable. This variable has been renamed from the initial name of **MentHlth**. 
+
+-   **BadPhysicalHealth** is a categorical variable with levels "0" through "30" as responses to the question "Over the last 30 days, how many did you experience having physical illness or an injury?". Given the thirty different possible responses, it may be suitable to treat **BadPhysicalHealth** as a numeric variable. This variable has been renamed from the initial name of **PhysHlth**. 
+
+-   **DifficultyWalking** is a categorical variable with levels "0" for "No" and "1" for "Yes" to the question "Do you have serious difficulty walking or climbing stairs?".
+
+-   **Sex** is a categorical variable with levels "0" for "Female" and "1" for "Male" to the question "What is your Sex?". 
+
+-   **Age** is a categorical variable with levels ranging from "1" for "18-24" to "13" for "80 or Older" to the question "What is your age?". The response were binned together in 5year groups with the exception of groups 1 and 13. Group 1 was expanded to account for PTs that were 18yo or 19yo. Group 13 was created to account for anyone who was 80yo or older.
+
+-   **Education** is a categorical variable with levels "1" through "8" as responses to the question "What is the highest grade or year of school you completed?". The response levels are "1" for "Never attended school or only Kindergarten", "2" for "Grades 1 through 8 (Elementary)", "3" for "Grades 9 through 11 (Some high school)", "4" for "Grade 12 or GED (High school graduate)", "5" for "College 1 year to 3 years (Some college or technical school)", and "6" for "College 4 years or more (College graduate)".
+
+-   **Income** is a categorical variable with levels "1" through "8" as reponses to the question "Is your annual income from all sources:?". The response levels are "1" for "Less than \$10,000", "2" for "Less than \$15,000", "3" for "Less than \$20,000", "4" for "Less than \$25,000", "5" for "Less than \$35,000", "6" for "Less than \$50,000", "7" for "Less than \$75,000", and "8" for "\$75,000 or more".
+
+#### Purpose and goal
+
+The purpose of the Exploratory Data Analysis (EDA) is to summarize the information from the twenty-one predictor variables with respect to **Diabetes_binary** and determine if any relationships exist.
+
+The goal of the EDA is to identify the variables having relationships with **Diabetes_binary** that are also suitable for prediction modeling. We will use these variables to generate different prediction model types and determine one that has the highest rate of success at predicting if someone has diabetes or not. 
 
 ### Data
 
+Before we read-in the data set, we need to establish a library required to use the functions required for summary analysis in R. 
+
 ```{r warning=FALSE, message=FALSE}
 
+library(tidyverse)
 library(dplyr)
 library(ggplot2)
 library(scales)
+library(GGally)
+library(ggcorrplot)
 
 ```
 
-1.  Use relative path to import the data
+Next, we will read-in the data using a relative path to the folder where the data file is stored. 
 
 ```{r Import, parse, and frame the data set}
-# Use a relative path to import the data. Convert variables to factors with 
-# meaningful names
 
-diabetes_df <- read.csv("diabetes_binary_health_indicators_BRFSS2015.csv")
+# Use a relative path to import the data. 
+
+diabetes_df <- read.csv("./FinalProjectRawData/diabetes_binary_health_indicators_BRFSS2015.csv")
 
 diabetes_df <- as_tibble(diabetes_df)
 
@@ -37,7 +94,7 @@ diabetes_df
 
 ```
 
-Check for missingness
+We will then check for missingness,
 
 ```{r Check data set for NA values}
 
@@ -45,7 +102,11 @@ list("Number of missing values in data set" = sum(is.na(diabetes_df)))
 
 ```
 
+We see that there are no missing values throughout the data set so we can proceed with converting the categorical variables to factors and provide meaningful names to variables if needed. 
+
 ```{r Convert factor variables to factors}
+
+# Convert variables to factors, replace with meaningful names
 
 diabetes_df <- diabetes_df |>
   rename("HasDiabetes" = Diabetes_binary, 
@@ -63,11 +124,14 @@ diabetes_df <- diabetes_df |>
   mutate(across(c(1:4, 6:15, 18:22), as.factor))
 
 str(diabetes_df)
+
+
+
 ```
 
-Review of our data frame structure shows that we have successfully renamed our variables and converted the categorical variables to factors.
+Review of our data frame structure shows that we have successfully renamed our variables and converted the categorical variables to factors. It is important to note that while **BadMentalHealth** and **BadPhysicalHealth** are categorical responses in the survey, the responses are discrete over a range of possible entries (1 to 30) makes them candidates for numeric analysis. 
 
-Next we will generate a summary of the variables to provide insight on what we will expect to see during our EDA.
+Next we will generate a summary of the variables to provide insight on what we can expect to see during our EDA.
 
 ```{r Data set summary of variables}
 
@@ -75,18 +139,86 @@ print(list("Summary of Diabetes Data Frame Variables"=summary(diabetes_df)))
 
 ```
 
-**BMI** appears to be generally centered with outliers in the right tail. **MentalHealth** and **PhysicalHealth** both appear to have a tendency response of "0" in the survey. **HighBP**, **HighCholesterol**, **Smoker**, **GeneralHealth**, **Sex** and **Age** each have a fairly equal distribution of responses. The remaining binary variables of **CholesterolChecked**, **Stroke**, **HeartDiseaseorAttack**, **PhysActivity**, **ConsumesFruits**, **ConsumesVeggies**, **HeavyAlcoholUse**, **HasHealthcare**, **ExpensiveTreatment**, and **DifficultyWalking** each heavily favor one response over the other. The variables of **Education** and **Income** both show an increase in responses as the category range values increase.
+Reeview of the data set summary shows that **BMI** appears to be centered with outliers that need investigated for removal. With median values of "0" over a range of 1-30, both **BadMentalHealth** and **BadPhysicalHealth** have a high tendency response of "0" in the survey. **HighBP**, **HighCholesterol**, **Smoker**, **GeneralHealth**, **Sex** and **Age** each appear to have response ratios near 1:1. The remaining binary variables of **CholesterolChecked**, **Stroke**, **HeartDiseaseorAttack**, **PhysActivity**, **ConsumesFruits**, **ConsumesVeggies**, **HeavyAlcoholUse**, **HasHealthcare**, **ExpensiveTreatment**, and **DifficultyWalking** each heavily favor one response over the other. The variables of **Education** and **Income** both show an increase in responses as the category range values increase.
 
 ### Summarizations
 
-1.  Produce meaningful summary stats and plots about the data being analyzed, particularly with how the variables relate to the response
+The first variable we will investigate is **BMI**. Review of the variable summary information shows
 
-2.  Do EDA on the complete data set
+```{r BMI summary}
 
-3.  Ensure narratives explain what we are exploring and what the summaries/graphs created say about the relationships in the data
+print(list("Summary of BMI"=summary(diabetes_df$BMI)))
 
-The first variable we will investigate is **HighBP**. Review of the variable summary information shows
+```
 
+that the data has a Q1 value of 24, Q3 value of 31, Median of 27, and Mean of 28.38. This tells us the data is tightly grouped together with BMI values of less than 13.5 and greater than 41.5 as outliers. These outliers include our Min of 12 and Max of 98. A histogram of **BMI** shows
+
+```{r Histogram of BMI}
+
+BMI_histogram <- ggplot(diabetes_df, aes(BMI)) +
+  geom_histogram(aes(y=..density..), binwidth=1, fill="#CC0000", color="lightgray") +
+  labs(title="Histogram of BMI", y="Density (# of PTs)") +
+  scale_x_continuous(breaks = seq(0, 100, by = 10)) +
+  stat_function(fun=dnorm, args=list(mean=mean(diabetes_df$BMI), sd=sd(diabetes_df$BMI))) 
+
+BMI_histogram
+
+```
+
+that the data follows a generally normal distribution with some skewness to the right. The histogram also visually confirms there are outleirs in the **BMI** ranges of 12-13 and 50-98.
+
+```{r Determine outliers initial}
+
+lowrange <- sum(diabetes_df$BMI < 13.5)
+
+highrange <- sum(diabetes_df$BMI > 41.5)
+
+BMIoutliers <-sum(lowrange, highrange)
+
+print(list("Number of BMI Oultiers"=BMIoutliers))
+
+print(list("BMI Outlier portion of data set"=BMIoutliers/nrow(diabetes_df)))
+```
+
+We identified there are total of 9847 observation that are outliers when using 1.5 the IQR as our defining statistic. This accounts for over 3.88% of the data set, which is a higher than we're willing to remove. Because the histogram shows there is close to a 0% probability of entries starting near a **BMI** of 50, 
+
+```{r Determine outliers v2}
+
+lowrange <- sum(diabetes_df$BMI < 13.5)
+
+highrange <- sum(diabetes_df$BMI > 50)
+
+BMIoutliers <-sum(lowrange, highrange)
+
+print(list("Number of BMI Oultiers"=BMIoutliers))
+
+print(list("BMI Outlier portion of data set"=BMIoutliers/nrow(diabetes_df)))
+```
+
+we udpated the parametrs and found there to be 2202 outlier observations which account for less than 1% of the data set. It would be reasonable to remove these observations from the data set before prediction model training. 
+
+Removing the outliers then splitting the **BMI** histogram with respect to **HasDiabetes** shows
+
+```{r Histogram of BMI with respect to HasDiabetes}
+
+diabetes_df <- diabetes_df |>
+  filter(BMI >= 13.5) |>
+  filter(BMI <= 50 )
+
+BMI_by_histplot <- ggplot(diabetes_df, aes(BMI)) +
+  geom_histogram(aes(y=..density..), binwidth=1, fill="#CC0000", color="lightgray") +
+  labs(title="Histogram of BMI by HasDiabetes", y="Density (# of PTs)") +
+  scale_x_continuous(breaks = seq(0, 100, by = 10)) +
+  stat_function(fun=dnorm, args=list(mean=mean(diabetes_df$BMI), sd=sd(diabetes_df$BMI))) +
+  facet_grid(~HasDiabetes)
+
+BMI_by_histplot
+
+```
+
+that the distribution of observations in the "No" **HasDiabetes** group has a center near a BMI of 25 while the "Yes" **HasDiabetes** group has a center near a BMI of 30. This change of **BMI** density distributions between the **HasDiabetes** groups indicates that **BMI** appears to be a suitable variable for prediction modeling. 
+
+The next variable we will investigate is **HighPB**. Review of the variable summary information shows
 ```{r HighBP Summary}
 
 print(list("Summary of HighBP"=summary(diabetes_df$HighBP)))
@@ -113,7 +245,7 @@ HighPB_plot
 
 ```
 
-that the majority of PTs with diabetes have high blood pressure while the majority of PTs without diabetes do not have high blood pressure. The observations in the "No" **HasDiabetes** category have a "No" to "Yes" **HighBP** ratio of approximately 68:41, which is close to 2:1. The observations in the "Yes" **HasDiabetes** category have a "No" to "Yes" **HighBP** ratio of approximately 1:3. This flip in ratios between the **HasDiabetes** groups suggests that there is a relationship between **HasDiabetes** and **HighBP**.
+that the majority of PTs with diabetes have high blood pressure while the majority of PTs without diabetes do not have high blood pressure. The observations in the "No" **HasDiabetes** category have a "No" to "Yes" **HighBP** ratio of approximately 7:4 (near 2:1). The observations in the "Yes" **HasDiabetes** category have a "No" to "Yes" **HighBP** ratio of approximately 4:13 (near 1:3). This flip in ratios between the **HasDiabetes** groups suggests that there is a relationship between **HasDiabetes** and **HighBP** where a PT with high blood pressure will also have diabetes.
 
 The next variable that we will investigate is **HighCholesterol**. Review of the variable summary information shows
 
@@ -123,7 +255,7 @@ print(list("Summary of HighCholesterol"=summary(diabetes_df$HighCholesterol)))
 
 ```
 
-there is approximately a 15:11 "No" to "Yes" ratio of **HighCholesterol** observations. This distribution is fairly close to being 1:1, so any differences between the **HasDiabetes** categories would be due to interactions between the variables.
+there is approximately a 14:11 "No" to "Yes" ratio of **HighCholesterol** observations. This distribution is fairly close to being 1:1, so any differences between the **HasDiabetes** categories would be due to interactions between the variables.
 
 Using a bar plot to observe **HighCholesterol** with respect to **HasDiabetes** we see
 
@@ -144,7 +276,7 @@ HighCholesterol_plot
 
 ```
 
-that the ratios change between the **HasDiabetes** groups. While the ratios favor low cholesterol in the group without diabetes, they favor high cholesterol levels in the group with diabetes. There is approximately a 13:8 (nears 2:1) ratio of "No" to "Yes" **HighCholesterol** responses in the "No" **HasDiabetes** group. There is approximately a 11:23 (nears 1:2) ratio of "No" to "Yes" **HighCholesterol** responses in the "Yes" **HasDiabetes** group. The shift in ratios between the groups trending towards PTs with diabetes having high cholesterol suggests that there is a relationship between **HasDiabetes** and **HighCholesterol**.
+that the ratios change between the **HasDiabetes** groups. While the ratios favor low cholesterol in the group without diabetes, they favor high cholesterol levels in the group with diabetes. There is approximately a 13:8 (nears 2:1) ratio of "No" to "Yes" **HighCholesterol** responses in the "No" **HasDiabetes** group. There is approximately a 11:23 (nears 1:2) ratio of "No" to "Yes" **HighCholesterol** responses in the "Yes" **HasDiabetes** group. The shift in ratios between the groups trending towards PTs with diabetes having high cholesterol suggests that there is a relationship between **HasDiabetes** and **HighCholesterol** where someone with high cholesterol will also have diabetes.
 
 The next variable we will investigate is **CholesterolChecked**. Review of the variable summary information shows
 
@@ -154,7 +286,7 @@ print(list("Summary of CholesterolChecked"=summary(diabetes_df$CholesterolChecke
 
 ```
 
-that the overwhelming majority of PTs had their cholesterol checked at a ratio of 1:27 when compared to those who did not. Any differences between the **HasDiabetes** groups may be heavily influenced by the number of observations in each group more than the interaction between the variables. Review of a bar plot of **CholesterolChecked** with respect to **HasDiabetes** shows
+that the overwhelming majority of PTs had their cholesterol checked at a ratio of 9:242 (nears 1:27) when compared to those who did not. Any differences between the **HasDiabetes** groups may be heavily influenced by the number of observations in each group more than the interaction between the variables. Review of a bar plot of **CholesterolChecked** with respect to **HasDiabetes** shows
 
 ```{r Bar plot of CholesterolChecked by HasDiabetes}
 
@@ -172,76 +304,9 @@ CholesterolChecked_plot
 
 ```
 
-that the group of "Yes" **CholesterolChecked** responses dominates both categories of **HasDiabetes**.\
-The "No" **HasDiabetes** group has a "No" to "Yes" **CholesterolChecked** ratio of approximately 1:23. The "YES" **HasDiabetes** group has a "No" to "Yes" **CholesterolChecked** ratio of approximately 1:146. This information suggests that there is an increased likelihood of a PT having diabetes if they have their cholesterol checked. Because it is unlikely that checking cholesterol levels will cause diabetes, **CholesterolChecked** is not a good variable for use in prediction modeling.
+that the group of "Yes" **CholesterolChecked** responses dominates both categories of **HasDiabetes**. The "No" **HasDiabetes** group has a "No" to "Yes" **CholesterolChecked** ratio of approximately 9:208 (nears 1:23). The "Yes" **HasDiabetes** group has a "No" to "Yes" **CholesterolChecked** ratio of approximately 1:172. This information suggests that there is a relationship between the variables where someone with diabetes has a high probability of having their cholesteroal checked every five years, which is not what we're trying to predict. **CholesterolChecked** does not appear to be a good variable for use in prediction modeling.
 
-The next variable we will investigte is **BMI**. Review of the variable summary information shows
-
-```{r BMI summary}
-
-print(list("Summary of BMI"=summary(diabetes_df$BMI)))
-
-```
-
-that the data has an IQR span of 7, a Median of 27, and Mean of 28.38. This tells us the data is tightly grouped together with the Min of 12 and Max of 98 being outliers. A histogram of **BMI** shows
-
-```{r Histogram of BMI}
-
-BMI_histogram <- ggplot(diabetes_df, aes(BMI)) +
-  geom_histogram(aes(y=..density..), binwidth=1, fill="#CC0000", color="lightgray") +
-  labs(title="Histogram of BMI", y="Density (# of PTs)") +
-  scale_x_continuous(breaks = seq(0, 100, by = 10)) +
-  stat_function(fun=dnorm, args=list(mean=mean(diabetes_df$BMI), sd=sd(diabetes_df$BMI))) 
-
-BMI_histogram
-
-```
-
-that the data follows a generally normal distribution with some skewness to the right. The histogram also confirms there are outleirs in the **BMI** ranges of 12-14 and 50-98.
-
-Splitting the **BMI** histogram with respect to **HasDiabetes** shows
-
-```{r Histogram of BMI with respect to HasDiabetes}
-
-BMI_by_histplot <- ggplot(diabetes_df, aes(BMI)) +
-  geom_histogram(aes(y=..density..), binwidth=1, fill="#CC0000", color="lightgray") +
-  labs(title="Histogram of BMI by HasDiabetes", y="Density (# of PTs)") +
-  scale_x_continuous(breaks = seq(0, 100, by = 10)) +
-  stat_function(fun=dnorm, args=list(mean=mean(diabetes_df$BMI), sd=sd(diabetes_df$BMI))) +
-  facet_grid(~HasDiabetes)
-
-BMI_by_histplot
-
-```
-
-that the distribution of observations in the "No" **HasDiabetes** group has a center near a BMI of 25 while the "Yes" **HasDiabetes** group has a center near a BMI of 30 Review of side by side box and whisker plots for the **HasDiabetes** subgroups
-
-```{r Comparison of BMI group stat summaries}
-
-BMI_by_boxwplot <- ggplot(diabetes_df, aes(HasDiabetes, BMI)) +
-  geom_boxplot(aes(group=HasDiabetes), fill="#CC0000") +
-  scale_y_continuous(breaks = seq(0, 100, by = 10)) +
-  labs(title="Box Plot of BMI by HasDiabetes")
-
-BMI_by_boxwplot
-
-```
-
-confirms that the Median, Mean, and IQR spreads for the "Yes" **HasDiabetes** group are all higher than those of the "No" group. Additionally, the box plot identifies that there is a shared oultier BMI range of 46-98.
-
-Looking back at the **BMI** histogram, the data in the BMI range of 12-14 and 46-50 appear to be inside of 3 standard deviations from the center. Because of this we determine how many BMI values are greater than 50 and how much of the data set those values make up.
-
-```{r Determine outliers}
-
-highrange <- sum(diabetes_df$BMI > 50)
-
-print(list("Number of BMI Oultiers"=highrange))
-
-print(list("BMI Outlier portion of data set"=highrange/nrow(diabetes_df)))
-```
-
-We identified there are of 2175 observations that are outliers, which account for less than 1% of the data set. It would be reasonable to remove these observations from the data set before prediction model training. Analysis of **BMI** indicates that it appears to be a suitable variable for prediction modeling after removal of the outleirs. The next varaible we're going to analyze is **Smoker**. Review of the variable summary shows that
-
+The next variable we're going to analyze is **Smoker**. Review of the variable summary shows that
 ```{r Smoker summary}
 
 print(list("Summary of Smoker"=summary(diabetes_df$Smoker)))
@@ -789,7 +854,7 @@ Education_plot
 
 ```
 
-shows that there is a definite change in the ratios of the **Education** gropus between the **HasDiabetes** groups. The "No" **HasDiabetes** group follows the same trend as the overall data while the "Yes" **HasDiabetes** group has a fairly uniform distribution between categories 4, 5, and 6. There does appear to be a relationship between the variables where we could determine there was a high probability that someone with diabetes has a high probability of having a high school diploma, GED, or higher education but the data does not lend itself to determining if a given education level can be used to predict if someone has diabetes. **Education** does not appear to be suitable for prediciton analysis.
+shows that there is a definite change in the ratios of the **Education** gropus between the **HasDiabetes** groups. The "No" **HasDiabetes** group follows the same trend as the overall data while the "Yes" **HasDiabetes** group has a fairly uniform distribution between categories 4, 5, and 6. There does appear to be a relationship between the variables where we could determine there was a high probability that someone with diabetes has a high probability of having a high school diploma, GED, or higher education but the data does not lend itself to determining if a given education level can be used to predict if someone has diabetes. **Education** does not appear to be suitable for prediction analysis.
 
 The last variable that we're going to summarize is **Income**. Review of the variable summary information
 
@@ -817,6 +882,36 @@ Income_plot
 
 ```
 
-that there is a shift in proportions of **Income** group categories between the **HasDiabetes** groups. The **Income** groups with "No" **HasDiabetes** responses appear to have a quadratic relationship with a large positive slope between groups 7 and 8. The **Income** groups with "Yes" **HasDiabetes** responses appear to have a linear relationship with a small positive slope. There appears to be a relationship between the variables where a person with diabetes has a greater probability of earning less than \$75K pe year, but that is not what we're trying ot predcit. **Income** does not appear to be suitable for prediction modeling.
+that there is a shift in proportions of **Income** group categories between the **HasDiabetes** groups. The **Income** groups with "No" **HasDiabetes** responses appear to have a quadratic relationship with a large positive slope between groups 7 and 8. The **Income** groups with "Yes" **HasDiabetes** responses appear to have a linear relationship with a small positive slope. There appears to be a relationship between the variables where a person with diabetes has a greater probability of earning less than \$75K pe year, but that is not what we're trying to predict. **Income** does not appear to be suitable for prediction modeling.
 
-Next, we will use the above information to generate prediction models [here](https://jpatt1980.github.io/FinalProject/FinalProjectModeling.html)
+Now that we have identified the variables with relationships to **HasDiabetes**, we will consider if they are independent from one another. Review of a heat plot of **HasDiabetes** compared to the six predictor variables shows
+
+```{r generate correlation matrix}
+
+diabetes_df_model <- diabetes_df |>
+  select(HasDiabetes, HighCholesterol, BMI, GeneralHealth, BadMentalHealth, BadPhysicalHealth, Age) 
+
+independenceCheck <- model.matrix(~., 
+             data=diabetes_df_model) |>
+  cor(use="pairwise.complete.obs") |>
+  ggcorrplot(title="Heat Plot of Predictor Variable Correlations", show.diag=FALSE, type="lower", lab=TRUE, lab_size=1.5) +
+  theme(axis.text.x = element_text(size=6),
+        axis.text.y = element_text(size=6))
+
+print(independenceCheck)
+
+```
+
+there are notable interactions between **GeneralHealth**, **BadMentalHealth**, and **BadPhysicalHealth**. 
+
+As **GeneralHealth** approaches category 5, the value of the correlation coefficient between it and **BadPhysicalHealth** increases to a moderate degree of correlation with maximum value of 0.49. **GeneralHealth** categories 2 through 4 all have weak correlation coefficients with **BadPhysicalHealth** ranging from -0.23 to 0.31. 
+
+As **GeneralHealth** approaches category 5, the value of the correlation coefficient between it and **BadMentalHealth** increases to a weak degree of correlation with maximum value of 0.26. **GeneralHealth** categories 2 through 4 also have weak correlation coefficients with **BadMentalHealth** ranging from -0.13 to 0.17. 
+
+**BadMentalHealth** and **BadPhysicalHealth** have a moderate degree of correlation with a correlation coefficient of 0.35. 
+
+Because **BadPhysicalHealth** greatly influences both **GeneralHealth** and **BadMentalHealth**, because **BadMentalHealth** also influences **GeneralHealth**, and because **BadPhysicalHealth**  has the highest correlation coefficient with **HasDiabetes**, it would be reasonable to remove **GeneralHealth** and **BadMentalHealth** from being used as predictor variables due to their dependence on **BadPhysicalHealth**. 
+
+The remaining combinations of variable groups all have weak correlation coefficients in the -0.30 to 0.30 range. Each of these variables appear to be independent from one another. 
+
+Now that we have completed our EDA, we will use the above information in our [Final Project Modeling](https://jpatt1980.github.io/FinalProject/FinalProjectModeling.html)

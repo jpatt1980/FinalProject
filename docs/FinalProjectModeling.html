@@ -144,28 +144,77 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="diabetes-health-indicators---modeling">Diabetes Health Indicators - Modeling</h2>
 <section id="introduction" class="level3">
 <h3 class="anchored" data-anchor-id="introduction">Introduction</h3>
-<ol type="1">
-<li>Start with a basic introduction (it is permissible to repeat things from EDA file)</li>
-</ol>
-<ul>
-<li><p>Variables identified as being candidates for prediction modeling: <strong>HighBP</strong>, <strong>HighCholesterol</strong>, <strong>BMI</strong>, <strong>GeneralHealth</strong>, <strong>BadMentalHealth</strong>, <strong>BadPhysicalHealth</strong>, and <strong>Age</strong>.</p></li>
-<li><p>Variables identified as needing outliers removed: <strong>BMI</strong></p></li>
-</ul>
+<p>The diabetes binary health indicators file is a subset of 22 variables and 253,690 responses to questions asked of as part of the Behavioral Risk Factor Surveillance System (BHFSS) survey conducted in 2015.</p>
+<p>In our EDA we identified that the variables of <strong>HighBP</strong>, <strong>HighCholesterol</strong>, <strong>BMI</strong>, <strong>GeneralHealth</strong>, <strong>BadMentalHealth</strong>, <strong>BadPhysicalHealth</strong>, and <strong>Age</strong> each had a relationship with <strong>HasDiabetes</strong> that could be used to predict the outcome of <strong>HasDiabetes</strong>. Our EDA identified that the variables <strong>Stroke</strong>, <strong>HeartDiseaseorAttack</strong>, <strong>PhysActivity</strong>, <strong>ConsumesFruits</strong>, <strong>ConsumesVeggies</strong>, <strong>HeavyAlcoholUse</strong>, <strong>ExpensiveTreatment</strong>, <strong>DifficultyWalking</strong>, and <strong>Income</strong> each had a relationship with <strong>HasDiabetes</strong> where <strong>HasDiabetes</strong> would be a predictor variable for them. This is not what we’re tyring to model so the varaibels will be excluded. We also identified that variables <strong>HasHealthcare</strong>, and <strong>Education</strong> did not have a distinguishable relationship with <strong>HasDiabetes</strong>. <strong>BMI</strong> appeared to be the only variable with outliers. These were removed from the data set before conducting EDA on the remaining variables.</p>
+<p>The goal of our modeling is to predict <strong>HasDiabetes</strong> using the <code>caret</code> package and <code>logLoss</code> as the metric for evaluation of how well our models predict the actual value of **HasDiabetes*. LogLoss is the negative average of the natural log of each observation’s difference from the predicted probability. LogLoss provides a metric for determining how much error exists in a classification prediction model in a similar way MSE determines how much error exists in a linear regression prediction model. What makes LogLoss a preferred method of comparison over model accuracy is that LogLoss takes predicted probability into account when determining average error in a classification prediction model while accuracy only accounts for the proportion of correct/incorrect predictions created by the model.</p>
+<p>First, lets establish the library of functions we will use to split our data set and generate our prediction models.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 70/30 split for training/testing subsets</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Use set.seed() to make things reproducible </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(caret)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<ol start="2" type="1">
-<li>The goal is to create models for predicting the Diabetes_binary variable (using <strong>caret</strong>).</li>
-</ol>
-<p>2.1. Use logLoss with 5 fold cross-validation to select the best model.</p>
-<p>2.2. Research and write-up a paragraph about what log loss is and why we may prefer it to accuracy when predicting a binary response variable.</p>
+<p>Next, we will read in the data file, remove variables identified as not suitable for prediction modeling during our EDA, remove outliers, update variable names, and ensure the classification variables are changed to factors. The resulting data frame is</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Read in the raw data file, select variables for modeling, set-up variable </span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># names, remove outliers. This is done to ensure the modeling page works</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># independent of the EDA page.  </span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>diabetes_df_model <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"./FinalProjectRawData/diabetes_binary_health_indicators_BRFSS2015.csv"</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>diabetes_df_model <span class="ot">&lt;-</span> <span class="fu">as_tibble</span>(diabetes_df_model)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>diabetes_df_model <span class="ot">&lt;-</span> diabetes_df_model <span class="sc">|&gt;</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Diabetes_binary, HighChol, BMI, PhysHlth, Age) <span class="sc">|&gt;</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(BMI <span class="sc">&gt;=</span> <span class="fl">13.5</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(BMI <span class="sc">&lt;=</span> <span class="dv">50</span> ) <span class="sc">|&gt;</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="st">"HasDiabetes"</span> <span class="ot">=</span> Diabetes_binary, </span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>         <span class="st">"HighCholesterol"</span> <span class="ot">=</span> HighChol, </span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>         <span class="st">"BadPhysicalHealth"</span> <span class="ot">=</span> PhysHlth) <span class="sc">|&gt;</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">5</span>), as.factor)) </span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>   </span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(diabetes_df_model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>tibble [251,478 × 5] (S3: tbl_df/tbl/data.frame)
+ $ HasDiabetes      : Factor w/ 2 levels "0","1": 1 1 1 1 1 1 1 1 2 1 ...
+ $ HighCholesterol  : Factor w/ 2 levels "0","1": 2 1 2 1 2 2 1 2 2 1 ...
+ $ BMI              : num [1:251478] 40 25 28 27 24 25 30 25 30 24 ...
+ $ BadPhysicalHealth: num [1:251478] 15 0 30 0 0 2 14 0 30 0 ...
+ $ Age              : Factor w/ 13 levels "1","2","3","4",..: 9 7 9 11 11 10 9 11 9 8 ...</code></pre>
+</div>
+</div>
+<p>We see from the structure of our subset that the data frame was converted properly and we’re ready to continue preparing the data for prediction modeling. Next we will split the data frame into training and test subsets. We will use 70% of the data set for the training model and 30% of the data set for testing our model.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 70/30 split for training/testing subsets</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Use set.seed() to make things reproducible </span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the model index for partitioning the data </span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>modelingIndex <span class="ot">&lt;-</span> <span class="fu">createDataPartition</span>(diabetes_df_model<span class="sc">$</span>HasDiabetes, <span class="at">p=</span>.<span class="dv">7</span>, <span class="at">list=</span><span class="cn">FALSE</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the training set</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>modelingTrain <span class="ot">&lt;-</span> diabetes_df_model[modelingIndex, ]</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the test set</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>modelingTest <span class="ot">&lt;-</span> diabetes_df_model[<span class="sc">-</span>modelingIndex, ]</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Output the dimensions to ensure the data subsets populated correctly</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">list</span>(<span class="st">"Traning Data"</span><span class="ot">=</span><span class="fu">dim</span>(modelingTrain), <span class="st">"Test Data"</span><span class="ot">=</span><span class="fu">dim</span>(modelingTest)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$`Traning Data`
+[1] 176035      5
+
+$`Test Data`
+[1] 75443     5</code></pre>
+</div>
+</div>
+<p>Review of the dimensions of both subsets shows that we successfully split the data and are ready to start generating our prediction models.</p>
 </section>
 <section id="logistic-regression-models" class="level3">
 <h3 class="anchored" data-anchor-id="logistic-regression-models">Logistic Regression Models</h3>
-<ol type="1">
-<li><p>Provide a reasonably thorough explanation of what a logsistic regression model is and why we apply it to this kind of data (response variable).</p></li>
-<li><p>Fit three candidate logistic regression models and choose the best model using CV with log-loss as the metric.</p></li>
+<p>The first prediction model type we’re going to generate is a logistic regression model. Logistic regression is the estimated probability of an event occurring when considering other variables involved. It is widely used in prediction modeling when a dependent variable of interest has binary outcomes. For our prediction model, we will be the estimating the probability of a PT having diabetes with consideration of the variables <strong>HighCholesterol</strong>, <strong>BMI</strong>, <strong>BadPhysicalHealth</strong>, and <strong>Age</strong> to predict a “Yes” response in the <strong>HasDiabetes</strong> variable.</p>
+<p>There are several different logistic regression models (LRMs) that are in the <code>caret</code> package. Because of this, we are going to select three types of LRMs and compare them to determine which one we will use for comparison against a Classification Tree and Random Forest prediction models that we will generate later in this report.</p>
+<ol start="2" type="1">
+<li>Fit three candidate logistic regression models and choose the best model using CV with log-loss as the metric.</li>
 </ol>
 </section>
 <section id="classfication-tree" class="level3">
