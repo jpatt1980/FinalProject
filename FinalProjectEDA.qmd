@@ -15,13 +15,13 @@ The diabetes binary health indicators file is a subset of 22 variables and 253,6
 
 The variables on the binary health indicators file are:
 
--   **HasDiabetes** is the target variable that we want to predict. It is a categorical variable with levels "0" for "No diabetes", "1" for "Pre-diabetes", and "2"" for "Diabetes"". This variable has been renamed from the initial name of **Diabetes_binary**. 
+-   **HasDiabetes** is the target variable that we want to predict. It is a categorical variable with levels "0" for "No diabetes", "1" for "Pre-diabetes", and "2"" for "Diabetes"". This variable has been renamed from the initial name of **Diabetes_binary**.
 
 -   **HighBP** is a categorical variable with levels "0" for "No high BP" and "1" for "High BP".
 
--   **HighCholesterol** is a categorical variable with levels "0" for "No High Cholesterol" and "1" for "High Cholesterol". This variable has been renamed from the initial name of **HighChol**. 
+-   **HighCholesterol** is a categorical variable with levels "0" for "No High Cholesterol" and "1" for "High Cholesterol". This variable has been renamed from the initial name of **HighChol**.
 
--   **CholesterolChecked** is a categorical variable with levels "0" for "No cholesterol check in 5 years" and "1" for "Cholesterol check in 5 years". This variable has been renamed from the initial name of **CholCheck**. 
+-   **CholesterolChecked** is a categorical variable with levels "0" for "No cholesterol check in 5 years" and "1" for "Cholesterol check in 5 years". This variable has been renamed from the initial name of **CholCheck**.
 
 -   **BMI** is a discrete numeric variable indicating the BMI level of the PT observed.
 
@@ -33,25 +33,25 @@ The variables on the binary health indicators file are:
 
 -   **PhysActivity** is a categorical variable with levels "0" for "No" and "1" for "Yes" to the question "Not including your job, have you participated in physical activity in the past 30 days?".
 
--   **ConsumesFruits** is a categorical variable with levels "0" for "No" and "1" for "Yes" to the question "Do you consume fruit 1 or more times per day?". This variable has been renamed from the initial name of **Fruits**. 
+-   **ConsumesFruits** is a categorical variable with levels "0" for "No" and "1" for "Yes" to the question "Do you consume fruit 1 or more times per day?". This variable has been renamed from the initial name of **Fruits**.
 
--   **ConsumesVeggies** is a categorical variable with levels "0" for "No" and "1" for "Yes" to the question "Do you consume vegetables 1 or more times per day?". This variable has been renamed from the initial name of **Veggies**. 
+-   **ConsumesVeggies** is a categorical variable with levels "0" for "No" and "1" for "Yes" to the question "Do you consume vegetables 1 or more times per day?". This variable has been renamed from the initial name of **Veggies**.
 
--   **HeavyAlcoholUse** is a categorical variable with levels "0" for "No" and "1" for "Yes" to the question "How many drinks do you consume each week?". Men responding to the question were placed in the "Yes" category if they consumed 14 or more alcoholic drinks in a week, otherwise they were placed in the "No" category. Women responding to the question were placed in the "Yes" category if they consumed 7 or more alcoholic drinks in a week, otherwise they were placed in the "No" category. This variable has been renamed from the initial name of **HvyAlcoholConsump**. 
+-   **HeavyAlcoholUse** is a categorical variable with levels "0" for "No" and "1" for "Yes" to the question "How many drinks do you consume each week?". Men responding to the question were placed in the "Yes" category if they consumed 14 or more alcoholic drinks in a week, otherwise they were placed in the "No" category. Women responding to the question were placed in the "Yes" category if they consumed 7 or more alcoholic drinks in a week, otherwise they were placed in the "No" category. This variable has been renamed from the initial name of **HvyAlcoholConsump**.
 
--   **HasHealthcare** is a categorical variable with levels "0" for "No" and "1" for "Yes" to the question "Do you have any kind of health care coverage?". Responses stating the individual had health insurance or prepaid plans were grouped into the "Yes" category. This variable has been renamed from the initial name of **AnyHealthcare**. 
+-   **HasHealthcare** is a categorical variable with levels "0" for "No" and "1" for "Yes" to the question "Do you have any kind of health care coverage?". Responses stating the individual had health insurance or prepaid plans were grouped into the "Yes" category. This variable has been renamed from the initial name of **AnyHealthcare**.
 
--   **ExpensiveTreatment** is a categorical variable with levels "0" for "No" and "1" for "Yes" to the question "Was there a time in the past 12 months when you needed to see a doctor but could not because of cost?". This variable has been renamed from the initial name of **NoDocbcCost**. 
+-   **ExpensiveTreatment** is a categorical variable with levels "0" for "No" and "1" for "Yes" to the question "Was there a time in the past 12 months when you needed to see a doctor but could not because of cost?". This variable has been renamed from the initial name of **NoDocbcCost**.
 
--   **GeneralHealth** is a categorical variable with response levels "1" for "Excellent", "2" for "Very Good", "3 for "Good", "4" for "Fair", and "5" for "Poor" to the question "Would you say your general health is...?". This variable has been renamed from the initial name of **GenHlth**. 
+-   **GeneralHealth** is a categorical variable with response levels "1" for "Excellent", "2" for "Very Good", "3 for "Good", "4" for "Fair", and "5" for "Poor" to the question "Would you say your general health is...?". This variable has been renamed from the initial name of **GenHlth**.
 
--   **BadMentalHealth** is a categorical variable with levels "0" through "30" as responses to the question "Over the last 30 days, how many did you experience poor mental health". Given the thirty different possible responses, it may be suitable to treat **BadMentalHealth** as a numeric variable. This variable has been renamed from the initial name of **MentHlth**. 
+-   **BadMentalHealth** is a categorical variable with levels "0" through "30" as responses to the question "Over the last 30 days, how many did you experience poor mental health". Given the thirty different possible responses, it may be suitable to treat **BadMentalHealth** as a numeric variable. This variable has been renamed from the initial name of **MentHlth**.
 
--   **BadPhysicalHealth** is a categorical variable with levels "0" through "30" as responses to the question "Over the last 30 days, how many did you experience having physical illness or an injury?". Given the thirty different possible responses, it may be suitable to treat **BadPhysicalHealth** as a numeric variable. This variable has been renamed from the initial name of **PhysHlth**. 
+-   **BadPhysicalHealth** is a categorical variable with levels "0" through "30" as responses to the question "Over the last 30 days, how many did you experience having physical illness or an injury?". Given the thirty different possible responses, it may be suitable to treat **BadPhysicalHealth** as a numeric variable. This variable has been renamed from the initial name of **PhysHlth**.
 
 -   **DifficultyWalking** is a categorical variable with levels "0" for "No" and "1" for "Yes" to the question "Do you have serious difficulty walking or climbing stairs?".
 
--   **Sex** is a categorical variable with levels "0" for "Female" and "1" for "Male" to the question "What is your Sex?". 
+-   **Sex** is a categorical variable with levels "0" for "Female" and "1" for "Male" to the question "What is your Sex?".
 
 -   **Age** is a categorical variable with levels ranging from "1" for "18-24" to "13" for "80 or Older" to the question "What is your age?". The response were binned together in 5year groups with the exception of groups 1 and 13. Group 1 was expanded to account for PTs that were 18yo or 19yo. Group 13 was created to account for anyone who was 80yo or older.
 
@@ -63,11 +63,11 @@ The variables on the binary health indicators file are:
 
 The purpose of the Exploratory Data Analysis (EDA) is to summarize the information from the twenty-one predictor variables with respect to **Diabetes_binary** and determine if any relationships exist.
 
-The goal of the EDA is to identify the variables having relationships with **Diabetes_binary** that are also suitable for prediction modeling. We will use these variables to generate different prediction model types and determine one that has the highest rate of success at predicting if someone has diabetes or not. 
+The goal of the EDA is to identify the variables having relationships with **Diabetes_binary** that are also suitable for prediction modeling. We will use these variables to generate different prediction model types and determine one that has the highest rate of success at predicting if someone has diabetes or not.
 
 ### Data
 
-Before we read-in the data set, we need to establish a library required to use the functions required for summary analysis in R. 
+Before we read-in the data set, we need to establish a library required to use the functions required for summary analysis in R.
 
 ```{r warning=FALSE, message=FALSE}
 
@@ -80,7 +80,7 @@ library(ggcorrplot)
 
 ```
 
-Next, we will read-in the data using a relative path to the folder where the data file is stored. 
+Next, we will read-in the data using a relative path to the folder where the data file is stored.
 
 ```{r Import, parse, and frame the data set}
 
@@ -102,14 +102,14 @@ list("Number of missing values in data set" = sum(is.na(diabetes_df)))
 
 ```
 
-We see that there are no missing values throughout the data set so we can proceed with converting the categorical variables to factors and provide meaningful names to variables if needed. 
+We see that there are no missing values throughout the data set so we can proceed with converting the categorical variables to factors and provide meaningful names to variables if needed.
 
 ```{r Convert factor variables to factors}
 
 # Convert variables to factors, replace with meaningful names
 
 diabetes_df <- diabetes_df |>
-  rename("HasDiabetes" = Diabetes_binary, 
+  dplyr::rename("HasDiabetes" = Diabetes_binary, 
          "HighCholesterol" = HighChol, 
          "CholesterolChecked" = CholCheck, 
          "ConsumesFruits" = Fruits, 
@@ -129,7 +129,7 @@ str(diabetes_df)
 
 ```
 
-Review of our data frame structure shows that we have successfully renamed our variables and converted the categorical variables to factors. It is important to note that while **BadMentalHealth** and **BadPhysicalHealth** are categorical responses in the survey, the responses are discrete over a range of possible entries (1 to 30) makes them candidates for numeric analysis. 
+Review of our data frame structure shows that we have successfully renamed our variables and converted the categorical variables to factors. It is important to note that while **BadMentalHealth** and **BadPhysicalHealth** are categorical responses in the survey, the responses are discrete over a range of possible entries (1 to 30) makes them candidates for numeric analysis.
 
 Next we will generate a summary of the variables to provide insight on what we can expect to see during our EDA.
 
@@ -180,7 +180,7 @@ print(list("Number of BMI Oultiers"=BMIoutliers))
 print(list("BMI Outlier portion of data set"=BMIoutliers/nrow(diabetes_df)))
 ```
 
-We identified there are total of 9847 observation that are outliers when using 1.5 the IQR as our defining statistic. This accounts for over 3.88% of the data set, which is a higher than we're willing to remove. Because the histogram shows there is close to a 0% probability of entries starting near a **BMI** of 50, 
+We identified there are total of 9847 observation that are outliers when using 1.5 the IQR as our defining statistic. This accounts for over 3.88% of the data set, which is a higher than we're willing to remove. Because the histogram shows there is close to a 0% probability of entries starting near a **BMI** of 50,
 
 ```{r Determine outliers v2}
 
@@ -195,7 +195,7 @@ print(list("Number of BMI Oultiers"=BMIoutliers))
 print(list("BMI Outlier portion of data set"=BMIoutliers/nrow(diabetes_df)))
 ```
 
-we udpated the parametrs and found there to be 2202 outlier observations which account for less than 1% of the data set. It would be reasonable to remove these observations from the data set before prediction model training. 
+we udpated the parametrs and found there to be 2202 outlier observations which account for less than 1% of the data set. It would be reasonable to remove these observations from the data set before prediction model training.
 
 Removing the outliers then splitting the **BMI** histogram with respect to **HasDiabetes** shows
 
@@ -216,9 +216,10 @@ BMI_by_histplot
 
 ```
 
-that the distribution of observations in the "No" **HasDiabetes** group has a center near a BMI of 25 while the "Yes" **HasDiabetes** group has a center near a BMI of 30. This change of **BMI** density distributions between the **HasDiabetes** groups indicates that **BMI** appears to be a suitable variable for prediction modeling. 
+that the distribution of observations in the "No" **HasDiabetes** group has a center near a BMI of 25 while the "Yes" **HasDiabetes** group has a center near a BMI of 30. This change of **BMI** density distributions between the **HasDiabetes** groups indicates that **BMI** appears to be a suitable variable for prediction modeling.
 
 The next variable we will investigate is **HighPB**. Review of the variable summary information shows
+
 ```{r HighBP Summary}
 
 print(list("Summary of HighBP"=summary(diabetes_df$HighBP)))
@@ -307,6 +308,7 @@ CholesterolChecked_plot
 that the group of "Yes" **CholesterolChecked** responses dominates both categories of **HasDiabetes**. The "No" **HasDiabetes** group has a "No" to "Yes" **CholesterolChecked** ratio of approximately 9:208 (nears 1:23). The "Yes" **HasDiabetes** group has a "No" to "Yes" **CholesterolChecked** ratio of approximately 1:172. This information suggests that there is a relationship between the variables where someone with diabetes has a high probability of having their cholesteroal checked every five years, which is not what we're trying to predict. **CholesterolChecked** does not appear to be a good variable for use in prediction modeling.
 
 The next variable we're going to analyze is **Smoker**. Review of the variable summary shows that
+
 ```{r Smoker summary}
 
 print(list("Summary of Smoker"=summary(diabetes_df$Smoker)))
@@ -902,16 +904,16 @@ print(independenceCheck)
 
 ```
 
-there are notable interactions between **GeneralHealth**, **BadMentalHealth**, and **BadPhysicalHealth**. 
+there are notable interactions between **GeneralHealth**, **BadMentalHealth**, and **BadPhysicalHealth**.
 
-As **GeneralHealth** approaches category 5, the value of the correlation coefficient between it and **BadPhysicalHealth** increases to a moderate degree of correlation with maximum value of 0.49. **GeneralHealth** categories 2 through 4 all have weak correlation coefficients with **BadPhysicalHealth** ranging from -0.23 to 0.31. 
+As **GeneralHealth** approaches category 5, the value of the correlation coefficient between it and **BadPhysicalHealth** increases to a moderate degree of correlation with maximum value of 0.49. **GeneralHealth** categories 2 through 4 all have weak correlation coefficients with **BadPhysicalHealth** ranging from -0.23 to 0.31.
 
-As **GeneralHealth** approaches category 5, the value of the correlation coefficient between it and **BadMentalHealth** increases to a weak degree of correlation with maximum value of 0.26. **GeneralHealth** categories 2 through 4 also have weak correlation coefficients with **BadMentalHealth** ranging from -0.13 to 0.17. 
+As **GeneralHealth** approaches category 5, the value of the correlation coefficient between it and **BadMentalHealth** increases to a weak degree of correlation with maximum value of 0.26. **GeneralHealth** categories 2 through 4 also have weak correlation coefficients with **BadMentalHealth** ranging from -0.13 to 0.17.
 
-**BadMentalHealth** and **BadPhysicalHealth** have a moderate degree of correlation with a correlation coefficient of 0.35. 
+**BadMentalHealth** and **BadPhysicalHealth** have a moderate degree of correlation with a correlation coefficient of 0.35.
 
-Because **BadPhysicalHealth** greatly influences both **GeneralHealth** and **BadMentalHealth**, because **BadMentalHealth** also influences **GeneralHealth**, and because **BadPhysicalHealth**  has the highest correlation coefficient with **HasDiabetes**, it would be reasonable to remove **GeneralHealth** and **BadMentalHealth** from being used as predictor variables due to their dependence on **BadPhysicalHealth**. 
+Because **BadPhysicalHealth** greatly influences both **GeneralHealth** and **BadMentalHealth**, because **BadMentalHealth** also influences **GeneralHealth**, and because **BadPhysicalHealth** has the highest correlation coefficient with **HasDiabetes**, it would be reasonable to remove **GeneralHealth** and **BadMentalHealth** from being used as predictor variables due to their dependence on **BadPhysicalHealth**.
 
-The remaining combinations of variable groups all have weak correlation coefficients in the -0.30 to 0.30 range. Each of these variables appear to be independent from one another. 
+The remaining combinations of variable groups all have weak correlation coefficients in the -0.30 to 0.30 range. Each of these variables appear to be independent from one another.
 
 Now that we have completed our EDA, we will use the above information in our [Final Project Modeling](https://jpatt1980.github.io/FinalProject/FinalProjectModeling.html)
