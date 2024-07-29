@@ -69,7 +69,7 @@ The goal of the EDA is to identify the variables having relationships with **Dia
 
 Before we read-in the data set, we need to establish a library required to use the functions required for summary analysis in R.
 
-```{r warning=FALSE, message=FALSE}
+```{r establish library, warning=FALSE, message=FALSE}
 
 library(tidyverse)
 library(dplyr)
@@ -82,7 +82,7 @@ library(ggcorrplot)
 
 Next, we will read-in the data using a relative path to the folder where the data file is stored.
 
-```{r Import, parse, and frame the data set}
+```{r import and frame the data set}
 
 # Use a relative path to import the data. 
 
@@ -90,21 +90,21 @@ diabetes_df <- read.csv("./FinalProjectRawData/diabetes_binary_health_indicators
 
 diabetes_df <- as_tibble(diabetes_df)
 
-diabetes_df
+print(diabetes_df)
 
 ```
 
 We will then check for missingness,
 
-```{r Check data set for NA values}
+```{r check data set for NA values}
 
-list("Number of missing values in data set" = sum(is.na(diabetes_df)))
+print(list("Number of missing values in data set" = sum(is.na(diabetes_df))))
 
 ```
 
 We see that there are no missing values throughout the data set so we can proceed with converting the categorical variables to factors and provide meaningful names to variables if needed.
 
-```{r Convert factor variables to factors}
+```{r convert categorical variables to factors}
 
 # Convert variables to factors, replace with meaningful names
 
@@ -125,25 +125,23 @@ diabetes_df <- diabetes_df |>
 
 str(diabetes_df)
 
-
-
 ```
 
 Review of our data frame structure shows that we have successfully renamed our variables and converted the categorical variables to factors. It is important to note that while **BadMentalHealth** and **BadPhysicalHealth** are categorical responses in the survey, the responses are discrete over a range of possible entries (1 to 30) makes them candidates for numeric analysis.
 
 Next we will generate a summary of the variables to provide insight on what we can expect to see during our EDA.
 
-```{r Data set summary of variables}
+```{r summary of data frame}
 
 print(list("Summary of Diabetes Data Frame Variables"=summary(diabetes_df)))
 
 ```
 
-Reeview of the data set summary shows that **BMI** appears to be centered with outliers that need investigated for removal. With median values of "0" over a range of 1-30, both **BadMentalHealth** and **BadPhysicalHealth** have a high tendency response of "0" in the survey. **HighBP**, **HighCholesterol**, **Smoker**, **GeneralHealth**, **Sex** and **Age** each appear to have response ratios near 1:1. The remaining binary variables of **CholesterolChecked**, **Stroke**, **HeartDiseaseorAttack**, **PhysActivity**, **ConsumesFruits**, **ConsumesVeggies**, **HeavyAlcoholUse**, **HasHealthcare**, **ExpensiveTreatment**, and **DifficultyWalking** each heavily favor one response over the other. The variables of **Education** and **Income** both show an increase in responses as the category range values increase.
+Review of the data set summary shows that **BMI** appears to be centered with outliers that need investigated for removal. With median values of "0" over a range of 1-30, both **BadMentalHealth** and **BadPhysicalHealth** have a high tendency response of "0" in the survey. **HighBP**, **HighCholesterol**, **Smoker**, **GeneralHealth**, **Sex** and **Age** each appear to have response ratios near 1:1. The remaining binary variables of **CholesterolChecked**, **Stroke**, **HeartDiseaseorAttack**, **PhysActivity**, **ConsumesFruits**, **ConsumesVeggies**, **HeavyAlcoholUse**, **HasHealthcare**, **ExpensiveTreatment**, and **DifficultyWalking** each heavily favor one response over the other. The variables of **Education** and **Income** both show an increase in responses as the category range values increase.
 
 ### Summarizations
 
-The first variable we will investigate is **BMI**. Review of the variable summary information shows
+The first variable we will investigate is **BMI**. 
 
 ```{r BMI summary}
 
@@ -151,9 +149,9 @@ print(list("Summary of BMI"=summary(diabetes_df$BMI)))
 
 ```
 
-that the data has a Q1 value of 24, Q3 value of 31, Median of 27, and Mean of 28.38. This tells us the data is tightly grouped together with BMI values of less than 13.5 and greater than 41.5 as outliers. These outliers include our Min of 12 and Max of 98. A histogram of **BMI** shows
+Review of the variable summary information shows that the data has a Q1 value of 24, Q3 value of 31, Median of 27, and Mean of 28.38. This tells us the data is tightly grouped together with BMI values of less than 13.5 and greater than 41.5 as outliers. These outliers include our Min of 12 and Max of 98. A histogram of **BMI** shows
 
-```{r Histogram of BMI}
+```{r Histogram of BMI, warning=FALSE, message=FALSE}
 
 BMI_histogram <- ggplot(diabetes_df, aes(BMI)) +
   geom_histogram(aes(y=..density..), binwidth=1, fill="#CC0000", color="lightgray") +
@@ -161,13 +159,13 @@ BMI_histogram <- ggplot(diabetes_df, aes(BMI)) +
   scale_x_continuous(breaks = seq(0, 100, by = 10)) +
   stat_function(fun=dnorm, args=list(mean=mean(diabetes_df$BMI), sd=sd(diabetes_df$BMI))) 
 
-BMI_histogram
+print(BMI_histogram)
 
 ```
 
 that the data follows a generally normal distribution with some skewness to the right. The histogram also visually confirms there are outleirs in the **BMI** ranges of 12-13 and 50-98.
 
-```{r Determine outliers initial}
+```{r determine outliers initial}
 
 lowrange <- sum(diabetes_df$BMI < 13.5)
 
@@ -180,9 +178,9 @@ print(list("Number of BMI Oultiers"=BMIoutliers))
 print(list("BMI Outlier portion of data set"=BMIoutliers/nrow(diabetes_df)))
 ```
 
-We identified there are total of 9847 observation that are outliers when using 1.5 the IQR as our defining statistic. This accounts for over 3.88% of the data set, which is a higher than we're willing to remove. Because the histogram shows there is close to a 0% probability of entries starting near a **BMI** of 50,
+We identified there are total of 9847 observation that are outliers when using 1.5 the IQR as our defining statistic. This accounts for over 3.88% of the data set, which is a higher than we're willing to remove. Because the histogram shows there is close to a 0% probability of entries with a **BMI** of greater than 50,
 
-```{r Determine outliers v2}
+```{r determine outliers v2}
 
 lowrange <- sum(diabetes_df$BMI < 13.5)
 
@@ -192,18 +190,24 @@ BMIoutliers <-sum(lowrange, highrange)
 
 print(list("Number of BMI Oultiers"=BMIoutliers))
 
-print(list("BMI Outlier portion of data set"=BMIoutliers/nrow(diabetes_df)))
+print(list("BMI Outlier portion of data set (version 2)"=BMIoutliers/nrow(diabetes_df)))
 ```
 
-we udpated the parametrs and found there to be 2202 outlier observations which account for less than 1% of the data set. It would be reasonable to remove these observations from the data set before prediction model training.
+we updated the parameters and found there to be 2202 outlier observations which account for less than 1% of the data set. It would be reasonable to remove these observations from the data set before prediction model training. Removing these outleris from the data set generates the updated data frame below. 
 
-Removing the outliers then splitting the **BMI** histogram with respect to **HasDiabetes** shows
-
-```{r Histogram of BMI with respect to HasDiabetes}
+```{r remove BMI outleirs from the data frame}
 
 diabetes_df <- diabetes_df |>
   filter(BMI >= 13.5) |>
   filter(BMI <= 50 )
+
+print(diabetes_df)
+
+```
+
+The below histogram plots of **BMI** with respect to **HasDiabetes** show that the distribution of observations in the "No" **HasDiabetes** group has a center near a BMI of 25 while the "Yes" **HasDiabetes** group has a center near a BMI of 30. were genrated after
+
+```{r histograms of BMI with respect to HasDiabetes}
 
 BMI_by_histplot <- ggplot(diabetes_df, aes(BMI)) +
   geom_histogram(aes(y=..density..), binwidth=1, fill="#CC0000", color="lightgray") +
@@ -212,15 +216,15 @@ BMI_by_histplot <- ggplot(diabetes_df, aes(BMI)) +
   stat_function(fun=dnorm, args=list(mean=mean(diabetes_df$BMI), sd=sd(diabetes_df$BMI))) +
   facet_grid(~HasDiabetes)
 
-BMI_by_histplot
+print(BMI_by_histplot)
 
 ```
 
-that the distribution of observations in the "No" **HasDiabetes** group has a center near a BMI of 25 while the "Yes" **HasDiabetes** group has a center near a BMI of 30. This change of **BMI** density distributions between the **HasDiabetes** groups indicates that **BMI** appears to be a suitable variable for prediction modeling.
+The above histogram plots were generated after removing the outliers then splitting the **BMI** histogram with respect to **HasDiabetes**. This change of **BMI** density distributions between the **HasDiabetes** groups indicates that **BMI** appears to be a suitable variable for prediction modeling.
 
 The next variable we will investigate is **HighPB**. Review of the variable summary information shows
 
-```{r HighBP Summary}
+```{r HighBP summary}
 
 print(list("Summary of HighBP"=summary(diabetes_df$HighBP)))
 
@@ -242,7 +246,7 @@ HighPB_plot <- ggplot(HighBP_by, aes(HasDiabetes, count, fill=HighBP)) +
   scale_y_continuous(labels = comma) +
   labs(title = "Bar Plot of HighBP by HasDiabetes", x="Has Diabetes", y="# of PTs")
 
-HighPB_plot
+print(HighPB_plot)
 
 ```
 
@@ -260,7 +264,7 @@ there is approximately a 14:11 "No" to "Yes" ratio of **HighCholesterol** observ
 
 Using a bar plot to observe **HighCholesterol** with respect to **HasDiabetes** we see
 
-```{r Bar Plot HighCholesterol by HasDiabetes, warning=FALSE, message=FALSE}
+```{r bar plot HighCholesterol by HasDiabetes, warning=FALSE, message=FALSE}
 
 HighCholesterol_by <- diabetes_df |>
   group_by(HasDiabetes, HighCholesterol) |>
@@ -273,7 +277,7 @@ HighCholesterol_plot <- ggplot(HighCholesterol_by, aes(HasDiabetes, count, fill=
   labs(title="Bar Plot of HighCholesterol by HasDiabetes", x="Has Diabetes", y= "# of PTs") +
   coord_flip()
 
-HighCholesterol_plot
+print(HighCholesterol_plot)
 
 ```
 
@@ -289,7 +293,7 @@ print(list("Summary of CholesterolChecked"=summary(diabetes_df$CholesterolChecke
 
 that the overwhelming majority of PTs had their cholesterol checked at a ratio of 9:242 (nears 1:27) when compared to those who did not. Any differences between the **HasDiabetes** groups may be heavily influenced by the number of observations in each group more than the interaction between the variables. Review of a bar plot of **CholesterolChecked** with respect to **HasDiabetes** shows
 
-```{r Bar plot of CholesterolChecked by HasDiabetes}
+```{r bar plot of CholesterolChecked by HasDiabetes}
 
 CholesterolChecked_by <- diabetes_df |>
   group_by(HasDiabetes, CholesterolChecked) |>
@@ -301,7 +305,7 @@ CholesterolChecked_plot <- ggplot(CholesterolChecked_by, aes(HasDiabetes, count,
   scale_y_continuous(labels = comma) +
   labs(title="Bar Plot of CholesterolChecked by HasDiabetes", x="Has Diabetes", y= "# of PTs")
 
-CholesterolChecked_plot
+print(CholesterolChecked_plot)
 
 ```
 
@@ -317,7 +321,7 @@ print(list("Summary of Smoker"=summary(diabetes_df$Smoker)))
 
 the ratio of smokers to non-smokers in the study is approximately 14:11. This is distribution between the groups is fairly close to a 1:1 distribution. Any differences between the **HasDiabetes** groups will be due to interactions between the two variables. Reviewing the bar plot of **Smoker** with respect to **HasDiabetes** shows
 
-```{r Bar plot Smoker by HasDiabetes}
+```{r bar plot Smoker by HasDiabetes}
 
 Smoker_by <- diabetes_df |>
   group_by(HasDiabetes, Smoker) |>
@@ -330,7 +334,7 @@ Smoker_plot <- ggplot(Smoker_by, aes(HasDiabetes, count, fill=Smoker)) +
   labs(title="Bar Plot of Smoker by HasDiabetes", x="Has Diabetes", y= "# of PTs") +
   coord_flip()
 
-Smoker_plot
+print(Smoker_plot)
 
 ```
 
@@ -346,7 +350,7 @@ print(list("Summary of Stroke"=summary(diabetes_df$Stroke)))
 
 that **Stroke** has a 24:1 "No" to "Yes" ratio. This suggests that any differences between the **HasDiabetes** groups may be heavily influenced by the number of observations in each group more than the interaction between the variables. Review of a bar plot for **Stroke** with respect to **HasDiabetes** shows
 
-```{r}
+```{r bar plot of Stroke by HasDiabetes, warning=FALSE, message=FALSE}
 
 Stroke_by <- diabetes_df |>
   group_by(HasDiabetes, Stroke) |>
@@ -358,7 +362,7 @@ Stroke_plot <- ggplot(Stroke_by, aes(HasDiabetes, count, fill=Stroke)) +
   scale_y_continuous(labels = comma) +
   labs(title="Bar Plot of Stroke by HasDiabetes", x="Has Diabetes", y= "# of PTs") 
 
-Stroke_plot
+print(Stroke_plot)
 
 ```
 
@@ -374,7 +378,7 @@ print(list("Summary of HeartDiseaseorAttack"=summary(diabetes_df$HeartDiseaseorA
 
 that the ratio between the "No" and "Yes" **HeartDiseaseorAttack** groups is approximately 23:2 which is slightly larger than 11:1. Review of a bar plot for **HeartDiseaseorAttack** with respect to **HasDiabetes** shows
 
-```{r Bar plot of HeartDiseaseorAttack by HasDiabetes}
+```{r bar plot of HeartDiseaseorAttack by HasDiabetes, warning=FALSE, message=FALSE}
 
 HeartDiseaseorAttack_by <- diabetes_df |>
   group_by(HasDiabetes, HeartDiseaseorAttack) |>
@@ -387,7 +391,7 @@ HeartDiseaseorAttack_plot <- ggplot(HeartDiseaseorAttack_by, aes(HasDiabetes, co
   labs(title="Bar Plot of HeartDiseaseorAttack by HasDiabetes", x="Has Diabetes", y= "# of PTs") +
   coord_flip()
 
-HeartDiseaseorAttack_plot
+print(HeartDiseaseorAttack_plot)
 
 ```
 
@@ -403,7 +407,7 @@ print(list("Summary of PhysicalActivity"= summary(diabetes_df$PhysActivity)))
 
 the ratio of "No" to "Yes" responses is approximately 6:19 which is slightly less than 1:3. This suggests that differences between the **HasDiabetes** groups may be influenced by the number of "Yes" **PhysActivity** observations. Review of a bar plot of **PhysActivity** with respect to **HasDiabetes** shows
 
-```{r Bar plot of PhysActivity by HasDiabetes}
+```{r bar plot of PhysActivity by HasDiabetes, warning=FALSE, message=FALSE}
 
 PhysActivity_by <- diabetes_df |>
   group_by(HasDiabetes, PhysActivity) |>
@@ -415,7 +419,7 @@ PhysActivity_plot <- ggplot(PhysActivity_by, aes(HasDiabetes, count, fill=PhysAc
   scale_y_continuous(labels = comma) +
   labs(title="Bar Plot of PhysActivity by HasDiabetes", x="Has Diabetes", y= "# of PTs") 
 
-PhysActivity_plot
+print(PhysActivity_plot)
 
 ```
 
@@ -431,7 +435,7 @@ print(list("Summary of ConsumesFruits"=summary(diabetes_df$ConsumesFruits)))
 
 that **ConsumesFruits** has a "No" to "Yes" ratio of approximately 9:16, which is slightly greater than a 1:2 distribution. Review of a bar graph of **ConsumesFruits** with respect to **HasDiabetes** shows
 
-```{r Bar plot of ConsumesFruits by HasDiabetes}
+```{r bar plot of ConsumesFruits by HasDiabetes, warning=FALSE, message=FALSE}
 
 ConsumesFruits_by <- diabetes_df |>
   group_by(HasDiabetes, ConsumesFruits) |>
@@ -444,7 +448,7 @@ ConsumesFruits_plot <- ggplot(ConsumesFruits_by, aes(HasDiabetes, count, fill=Co
   labs(title="Bar Plot of ConsumesFruits by HasDiabetes", x="Has Diabetes", y= "# of PTs") +
   coord_flip()
 
-ConsumesFruits_plot
+print(ConsumesFruits_plot)
 
 ```
 
@@ -460,7 +464,7 @@ print(list("Summary of ConsumesVeggies"=summary(diabetes_df$ConsumesVeggies)))
 
 that the proporiton of "No" to "Yes" responses is approximately 5:21 which is slightly less than 1:4. Review of a bar plot of **ConsumesVeggies** with respect to **HasDiabetes** shows
 
-```{r Bar plot of ConsumesVeggies by HasDiabetes}
+```{r bar plot of ConsumesVeggies by HasDiabetes, warning=FALSE, message=FALSE}
 
 ConsumesVeggies_by <- diabetes_df |>
   group_by(HasDiabetes, ConsumesVeggies) |>
@@ -472,7 +476,7 @@ ConsumesVeggies_plot <- ggplot(ConsumesVeggies_by, aes(HasDiabetes, count, fill=
   scale_y_continuous(labels = comma) +
   labs(title="Bar Plot of ConsumesVeggies by HasDiabetes", x="Has Diabetes", y= "# of PTs") 
 
-ConsumesVeggies_plot
+print(ConsumesVeggies_plot)
 
 ```
 
@@ -488,7 +492,7 @@ print(list("Summary of HeavyAlcoholUse"=summary(diabetes_df$HeavyAlcoholUse)))
 
 shows that the ratio of "No" to "Yes" responses is approximately 24:1. This suggests that any differences between the **HasDiabetes** groups may be influenced by the number of observations. Reviewing the bar plot of **HeavyAlcoholUse** with respect to \*\*HeartDisease\* shows
 
-```{r Bar plot of HeavyAlcoholUse by HeartDisease}
+```{r bar plot of HeavyAlcoholUse by HeartDisease, warning=FALSE, message=FALSE}
 
 HeavyAlcoholUse_by <- diabetes_df |>
   group_by(HasDiabetes, HeavyAlcoholUse) |>
@@ -501,7 +505,7 @@ HeavyAlcoholUse_plot <- ggplot(HeavyAlcoholUse_by, aes(HasDiabetes, count, fill=
   labs(title="Bar Plot of HeavyAlcoholUse by HasDiabetes", x="Has Diabetes", y= "# of PTs") +
   coord_flip()
 
-HeavyAlcoholUse_plot
+print(HeavyAlcoholUse_plot)
 
 ```
 
@@ -509,7 +513,7 @@ that the "No" **HeavyAlcoholUse** responses constitute the majority of observati
 
 The next variable we're going to summarize is **HasHealthcare**. Review of the variable summary information
 
-```{r }
+```{r HasHealthcare summary}
 
 print(list("Summary of HasHealthcare"=summary(diabetes_df$HasHealthcare)))
 
@@ -517,7 +521,7 @@ print(list("Summary of HasHealthcare"=summary(diabetes_df$HasHealthcare)))
 
 shows that the ratio of "No" to "Yes" observations is approximately 12:241 which is close to a 1:20 ratio. This is suggestive that any differences between the **HasDiabetes** categories may be heavily influenced by the number of responses in each. Reviewing the bar chart of **HasHealthcare** with respect to **HasDiabetes** shows
 
-```{r}
+```{r bar plot of HasHealtcare by HasDiabetes, warning=FALSE, message=FALSE}
 
 HasHealthcare_by <- diabetes_df |>
   group_by(HasDiabetes, HasHealthcare) |>
@@ -529,7 +533,7 @@ HasHealthcare_plot <- ggplot(HasHealthcare_by, aes(HasDiabetes, count, fill=HasH
   scale_y_continuous(labels = comma) +
   labs(title="Bar Plot of HasHealthcare by HasDiabetes", x="Has Diabetes", y= "# of PTs") 
 
-HasHealthcare_plot
+print(HasHealthcare_plot)
 
 ```
 
@@ -537,7 +541,7 @@ the "Yes" **HasHealthcare** observations are substantially higher than the "No" 
 
 The next variable we're going to summarize is **ExpensiveTreatment**. Review of the variable summary information
 
-```{r }
+```{r ExpensiveTreatment summary}
 
 print(list("Summary of ExpensiveTreatment"=summary(diabetes_df$ExpensiveTreatment)))
 
@@ -545,7 +549,7 @@ print(list("Summary of ExpensiveTreatment"=summary(diabetes_df$ExpensiveTreatmen
 
 that the ration of "No" to "Yes" observations is approximately 232:21 which reduces near 11:1. This is suggestive that any differences between the **HasDiabetes** categories may be heavily influenced by the number of repsonses in each. Reviwing the bar chart of **ExpensiveTreatment** with respect to **HasDiabetes** shows
 
-```{r}
+```{r bar plot of ExpensiveTreatment by HasDiabetes, warning=FALSE, message=FALSE}
 
 ExpensiveTreatment_by <- diabetes_df |>
   group_by(HasDiabetes, ExpensiveTreatment) |>
@@ -558,7 +562,7 @@ ExpensiveTreatment_plot <- ggplot(ExpensiveTreatment_by, aes(HasDiabetes, count,
   labs(title="Bar Plot of ExpensiveTreatment by HasDiabetes", x="Has Diabetes", y= "# of PTs") +
   coord_flip()
 
-ExpensiveTreatment_plot
+print(ExpensiveTreatment_plot)
 
 ```
 
@@ -566,7 +570,7 @@ the "No" observations are substantially greater than the "Yes" responses for bot
 
 The next variable we're going to summarize is **GeneralHealth**. Review of the variable summary information
 
-```{r }
+```{r GeneralHealth summary}
 
 print(list("Summary of GeneralHealth"=summary(diabetes_df$GeneralHealth)))
 
@@ -574,7 +578,7 @@ print(list("Summary of GeneralHealth"=summary(diabetes_df$GeneralHealth)))
 
 shows that the majority of patients reported being in "Excellent" to "Good" health. Reviewing the bar chart of **GeneralHealth** with respect to **HasDiabetes** shows
 
-```{r}
+```{r bar plot of GeneralHealth by HasDiabetes, warning=FALSE, message=FALSE}
 
 GeneralHealth_by <- diabetes_df |>
   group_by(HasDiabetes, GeneralHealth) |>
@@ -586,13 +590,13 @@ GeneralHealth_plot <- ggplot(GeneralHealth_by, aes(HasDiabetes, count, fill=Gene
   scale_y_continuous(labels = comma) +
   labs(title="Bar Plot of GeneralHealth by HasDiabetes", x="Has Diabetes", y= "# of PTs") 
 
-GeneralHealth_plot
+print(GeneralHealth_plot)
 
 ```
 
 that there is a shift in the reporting tendencies between the **HasDiabetes** categories. The "No" **HasDiabetes** group has a central tendency of "Very Good" followed by "Good" **GeneralHealth** responses while the "Yes" **HasDiabetes** group has a central tendency of "Good" followed by "Fair" **GeneralHealth** responses
 
-```{r}
+```{r comparison of General Health distributions between HasDiabetes groups}
 
 NoDiabetes_high_three <- sum(GeneralHealth_by$count[1:3])/sum(GeneralHealth_by$count[1:5])
 NoDiabetes_fourth <- GeneralHealth_by$count[4]/sum(GeneralHealth_by$count[1:5])
@@ -608,7 +612,7 @@ Review of the **GeneralHealth** response proportions in the "No" **HasDiabetes**
 
 The next variable we're going to summarize is **BadMentalHealth**. Review of the variable summary information
 
-```{r}
+```{r BadMentalHealth summary}
 
 print(list("Summary of BadMentalHealth"=summary(diabetes_df$BadMentalHealth)))
 
@@ -618,14 +622,14 @@ shows that there is a tendency for the PTs to report that their mental health wa
 
 Review of a histogram of the variable along with histograms of **MentalHealth** with respect to **HasDiabetes** shows
 
-```{r}
+```{r histograms of BadMentalHealth by HasDiabetes}
 BadMentalHealth_histogram <- ggplot(diabetes_df, aes(BadMentalHealth)) +
   geom_histogram(aes(y=..density..), binwidth=1, fill="#CC0000", color="lightgray") +
   scale_x_continuous(breaks = seq(0, 30, by = 5)) +
   scale_y_continuous(breaks = seq(0, 1, by = 0.05)) +
   labs(title="Histogram of BadMentalHealth", x="# of Days Mental Health Not Good", y="Density (# of PTs)")
 
-BadMentalHealth_histogram
+print(BadMentalHealth_histogram)
 
 BadMentalHealth_by_histplot <- ggplot(diabetes_df, aes(BadMentalHealth)) +
   geom_histogram(aes(y=..density..), binwidth=1, fill="#CC0000", color="lightgray") +
@@ -634,19 +638,28 @@ BadMentalHealth_by_histplot <- ggplot(diabetes_df, aes(BadMentalHealth)) +
   scale_y_continuous(breaks = seq(0, 1, by = 0.05)) +
   facet_grid(~HasDiabetes)
 
-BadMentalHealth_by_histplot
+print(BadMentalHealth_by_histplot)
 
 ```
 
 that the majority of the observations in both categories of **HasDiabetes** follow the similar trend where the majority of non-zero values in **BadMentalHealth** are in the range of 1-10 days. After remvoing the zero values for analysis, we compared the proportions of 10-day **BadMentalHealth** ranges between the **HasDiabetes** groups.
 
-```{r}
+The data table generated after removing the zero entries is listed below. 
+
+```{r chart of BadMentalHealth non-zeros, warning=FALSE, message=FALSE}
 
 BadMentalHealth_by_nozero <- diabetes_df |>
   group_by(HasDiabetes, BadMentalHealth) |>
   filter(BadMentalHealth >= 1) |>
   summarize(count=n())
+
 print(BadMentalHealth_by_nozero, n=60)
+
+```
+
+The format of the table makes it difficult to compare the **HasDiabetes** group entries. To remedy this, we will bin the **BadMentalHealth** responses into 10-day ranges determine the proportions of each bin as it relates to the corresponding **HasDiabetes** group. We will then compare the bins between the "No" and "Yes" **HasDiabetes** groups to determine if there is any relationship between **BadMentalHealth** and **HasDiabetes**. 
+
+```{r distribution comparisons of BadMentalHealth by HasDiabetes groups, warning=FALSE, message=FALSE}
 
 HasDiabetesNo_first_ten <- list("HasDiabetesNo, BadMentalHealth, 1-10 days proprotion of data" =sum(BadMentalHealth_by_nozero$count[1:10])/sum(BadMentalHealth_by_nozero$count[1:30]))
 
@@ -658,17 +671,17 @@ HasDiabetesYes_first_ten <- list("HasDiabetesYes, BadMentalHealth, 1-10 days pro
 
 HasDiabetesYes_middle_ten <- list("HasDiabetesYes, BadMentalHealth, 11-20 days proprotion of data"=sum(BadMentalHealth_by_nozero$count[41:50])/sum(BadMentalHealth_by_nozero$count[31:60]))
 
-HasDiabetesYes_last_ten <- list("HasDiabetesYes, BadMentalHealth, 20-30 days proprotion of data"=sum(BadMentalHealth_by_nozero$count[51:60])/sum(BadMentalHealth_by_nozero$count[31:60]))
+HasDiabetesYes_last_ten <- list("HasDiabetesYes, BadMentalHealth, 21-30 days proprotion of data"=sum(BadMentalHealth_by_nozero$count[51:60])/sum(BadMentalHealth_by_nozero$count[31:60]))
 
 print(c(HasDiabetesNo_first_ten, HasDiabetesYes_first_ten, HasDiabetesNo_middle_ten, HasDiabetesYes_middle_ten, HasDiabetesNo_last_ten, HasDiabetesYes_last_ten))
 
 ```
 
-The comparisons showed that the "No" **HasDiabetes** group had a 70% of their **BadMentalHealth** responses in the 1-10 day range while the "Yes" **HasDiabetes** group only had a 56.2% of their **BadMentalHealth** responses in the same range. Likewise, the "Yes" **HasDiabetes** group had higher percentages of responses in both the 11-20 day and 21-30 day **BadMentalHealth** ranges than the "No" **HasDiabetes** group. The change in "0" response density between the **HasDiabetes** groups appears to have shifted to longer periods of PTs with diabetes experiencing mental health that is not good. This shows that there is a relationship between the variables. **BadMentalHealth** appears to be suitable for prediction modeling.
+Comparison of the **BadMentalHealth** bin distributions between the **HasDiabetes** groups showed that the "No" **HasDiabetes** group had a 70% of their **BadMentalHealth** responses in the 1-10 day range while the "Yes" **HasDiabetes** group only had a 56.2% of their **BadMentalHealth** responses in the same range. Likewise, the "Yes" **HasDiabetes** group had higher percentages of responses in both the 11-20 day and 21-30 day **BadMentalHealth** ranges than the "No" **HasDiabetes** group. The change in "0" response density between the **HasDiabetes** groups appears to have shifted to longer periods of PTs with diabetes experiencing mental health that is not good. This shows that there is a relationship between the variables. **BadMentalHealth** appears to be suitable for prediction modeling.
 
 The next variable we're going to summarize is **BadPhysicalHealth**. Review of the variable summary information
 
-```{r}
+```{r BadPhysicalHealth summary}
 
 print(list("Summary of PhysicalHealth"=summary(diabetes_df$BadPhysicalHealth)))
 
@@ -676,7 +689,7 @@ print(list("Summary of PhysicalHealth"=summary(diabetes_df$BadPhysicalHealth)))
 
 shows that like **BadMentalHealth**, the vast majority of **BadPhysicalHealth** responses provided were "0". Reviewing a density plot histogram of **BadPhysicalHealth** along with histogram plots of **BadPhysicalHealth** with respect to **HasDiabetes** show
 
-```{r}
+```{r histograms of BadPhysicalHealth by HasDiabetes}
 
 BadPhysicalHealth_histogram <- ggplot(diabetes_df, aes(BadPhysicalHealth)) +
   geom_histogram(aes(y=..density..), binwidth=1, fill="#CC0000", color="lightgray") +
@@ -684,7 +697,7 @@ BadPhysicalHealth_histogram <- ggplot(diabetes_df, aes(BadPhysicalHealth)) +
   scale_y_continuous(breaks = seq(0, 1, by = 0.05)) +
   labs(title="Histogram of BadPhysicalHealth", x="# of Days Mental Health Not Good", y="Density (# of PTs)")
 
-BadPhysicalHealth_histogram
+print(BadPhysicalHealth_histogram)
 
 BadPhysicalHealth_by_histplot <- ggplot(diabetes_df, aes(BadPhysicalHealth)) +
   geom_histogram(aes(y=..density..), binwidth=1, fill="#CC0000", color="lightgray") +
@@ -693,13 +706,13 @@ BadPhysicalHealth_by_histplot <- ggplot(diabetes_df, aes(BadPhysicalHealth)) +
   scale_y_continuous(breaks = seq(0, 30, by = 0.05)) +
   facet_grid(~HasDiabetes)
 
-BadPhysicalHealth_by_histplot
+print(BadPhysicalHealth_by_histplot)
 
 ```
 
 that like with **BadMentalHealth**, the density of the **BadPhysicalHealth** "0" response changes between the **HasDiabetes** groups. The general trend is that when compared to the "No" **HasDiabetes** group the "Yes" **HasDiabetes** densities in the 0-7 day range are lower and then overall higher among the remaining groups. Comparing the proportions of the 0-7day ranges to the 8-30 day ranges
 
-```{r}
+```{r comparison of BadPhysicalHealth distributions by HasDiabetes groups}
 
 BadPhysicalHealth_by <- diabetes_df |>
   group_by(HasDiabetes, BadMentalHealth) |>
@@ -721,7 +734,7 @@ confirms that the visual assessments are correct. The "No" **HasDiabetes** group
 
 The next variable we're going to summarize is **DifficultyWalking**. Reviewing the variable summary
 
-```{r}
+```{r DifficultyWalking summary}
 
 print(list("Summary of DifficultyWalking"=summary(diabetes_df$DifficultyWalking)))
 
@@ -729,7 +742,7 @@ print(list("Summary of DifficultyWalking"=summary(diabetes_df$DifficultyWalking)
 
 shows that the majority of PTs reported "No" at a ratio of approximately 211:43, which reduces to slightly less than 5:1. This suggests that any differences in the **HasDiabetes** groups will be highly influenced by the number of PTs in each. Reviewing the bar plot of **DifficultyWalking** with respect to **HasDiabetes** shows
 
-```{r}
+```{r bar plot of DifficultyWalking by HasDiabetes}
 
 
 DifficultyWalking_by <- diabetes_df |>
@@ -743,7 +756,7 @@ DifficultyWalking_plot <- ggplot(DifficultyWalking_by, aes(HasDiabetes, count, f
   labs(title="Bar Plot of DifficultyWalking by HasDiabetes", x="Has Diabetes", y= "# of PTs") +
   coord_flip()
 
-DifficultyWalking_plot
+print(DifficultyWalking_plot)
 
 ```
 
@@ -751,7 +764,7 @@ that the majority of responses in both **HasDiabetes** groups fall under the "No
 
 The next variable we're going to summarize is **Sex**. Reviewing the variable summary
 
-```{r}
+```{r Sex summary}
 
 print(list("Summary of Sex"=summary(diabetes_df$Sex)))
 
@@ -759,7 +772,7 @@ print(list("Summary of Sex"=summary(diabetes_df$Sex)))
 
 shows that the distribution between the categories is almost uniform at a female to male ratio of approximately 142:111 which simplifies to a ratio slightly greater than 1:1. Reviewing the bar plot of **Sex** with respect to **HasDiabetes** shows
 
-```{r}
+```{r bar plot of Sex by HasDiabetes}
 
 Sex_by <- diabetes_df |>
   group_by(HasDiabetes, Sex) |>
@@ -771,7 +784,7 @@ Sex_plot <- ggplot(Sex_by, aes(HasDiabetes, count, fill=Sex)) +
   scale_y_continuous(labels = comma) +
   labs(title="Bar Plot of Sex by HasDiabetes", x="Has Diabetes", y= "# of PTs") 
 
-Sex_plot
+print(Sex_plot)
 
 ```
 
@@ -779,7 +792,7 @@ that the number of females is greater in both **HasDiabetes** groups. The observ
 
 The next variable we're going to summarize is **Age**. Review of the variable summary
 
-```{r}
+```{r Age summary}
 
 print(list("Summary of Age"=summary(diabetes_df$Age)))
 
@@ -787,7 +800,7 @@ print(list("Summary of Age"=summary(diabetes_df$Age)))
 
 shows that there is a trend where the number of responses increase in each category until group 9 (60-64), where they then decrease as from category 10 to 12 with group 13 being slightly higher than group 12. Reviewing histograms of **Age** with respect to **HasDiabetes** shows
 
-```{r}
+```{r bar plot of Age by HasDiabetes}
 
 Age_by <- diabetes_df |>
   group_by(HasDiabetes, Age) |>
@@ -799,13 +812,13 @@ Age_plot <- ggplot(Age_by, aes(HasDiabetes, count, fill=Age)) +
   scale_y_continuous(labels = comma) +
   labs(title="Bar Plot of Age by HasDiabetes", x="Has Diabetes", y= "# of PTs")
 
-Age_plot
+print(Age_plot)
 
 ```
 
 that there a shift in distribution between the **HasDiabetes** groups. The "No" **HasDiabetes** group has central tendency around resonse "9" while the "Yes" **HasDiabetes** group has a central tendency around response "10". Review of a summary table of the proportions between the **HasDiabetes** categories by groups shows
 
-```{r}
+```{r comparison of Age distributions between HasDiabetes groups}
 
 AgeGrp <- Age_by$Age[1:13]
 
@@ -831,7 +844,7 @@ that not only did the distributions shift between the age groups, but the highes
 
 The next variabel we're going to summarize is **Education**. Review of the variable summary information
 
-```{r}
+```{r Education summary}
 
 print(list("Summary of Education"=summary(diabetes_df$Education)))
 
@@ -839,7 +852,7 @@ print(list("Summary of Education"=summary(diabetes_df$Education)))
 
 shows that the responses increased in each category with the majority of observations belonging to category 6 (College 4yrs or more (College graduate)). Reviewing the bar plot of **Education** with respect to **HasDiabetes** shows
 
-```{r}
+```{r bar plot of Education by HasDiabetes}
 
 Education_by <- diabetes_df |>
   group_by(HasDiabetes, Education) |>
@@ -852,7 +865,7 @@ Education_plot <- ggplot(Education_by, aes(HasDiabetes, count, fill=Education)) 
   labs(title="Bar Plot of Education by HasDiabetes", x="Has Diabetes", y= "# of PTs") +
   coord_flip()
 
-Education_plot
+print(Education_plot)
 
 ```
 
@@ -860,7 +873,7 @@ shows that there is a definite change in the ratios of the **Education** gropus 
 
 The last variable that we're going to summarize is **Income**. Review of the variable summary information
 
-```{r}
+```{r Income summary}
 
 print(list("Summary of Income"=summary(diabetes_df$Income)))
 
@@ -868,7 +881,7 @@ print(list("Summary of Income"=summary(diabetes_df$Income)))
 
 shows that the number of responses increase as the categories increase, with the largest group earning \$75K per year or more. Reviewing a bar plot of **Income** with respect to **HasDiabetes** shows
 
-```{r}
+```{r bar plot of Income by HasDiabetes}
 
 Income_by <- diabetes_df |>
   group_by(HasDiabetes, Income) |>
@@ -880,7 +893,7 @@ Income_plot <- ggplot(Income_by, aes(HasDiabetes, count, fill=Income)) +
   scale_y_continuous(labels = comma) +
   labs(title="Bar Plot of Income by HasDiabetes", x="Has Diabetes", y= "# of PTs")
 
-Income_plot
+print(Income_plot)
 
 ```
 
@@ -888,7 +901,7 @@ that there is a shift in proportions of **Income** group categories between the 
 
 Now that we have identified the variables with relationships to **HasDiabetes**, we will consider if they are independent from one another. Review of a heat plot of **HasDiabetes** compared to the six predictor variables shows
 
-```{r generate correlation matrix, warning=FALSE, message=FALSE}
+```{r generate correlation matrix of predictor variables, warning=FALSE, message=FALSE}
 
 diabetes_df_model <- diabetes_df |>
   select(HasDiabetes, HighCholesterol, BMI, GeneralHealth, BadMentalHealth, BadPhysicalHealth, Age) 

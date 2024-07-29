@@ -146,8 +146,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h3 class="anchored" data-anchor-id="introduction">Introduction</h3>
 <p>The diabetes binary health indicators file is a subset of 22 variables and 253,690 responses to questions asked of as part of the Behavioral Risk Factor Surveillance System (BHFSS) survey conducted in 2015.</p>
 <p>In our EDA we identified that the variables of <strong>HighBP</strong>, <strong>HighCholesterol</strong>, <strong>BMI</strong>, <strong>GeneralHealth</strong>, <strong>BadMentalHealth</strong>, <strong>BadPhysicalHealth</strong>, and <strong>Age</strong> each had a relationship with <strong>HasDiabetes</strong> that could be used to predict the outcome of <strong>HasDiabetes</strong>. Our EDA identified that the variables <strong>Stroke</strong>, <strong>HeartDiseaseorAttack</strong>, <strong>PhysActivity</strong>, <strong>ConsumesFruits</strong>, <strong>ConsumesVeggies</strong>, <strong>HeavyAlcoholUse</strong>, <strong>ExpensiveTreatment</strong>, <strong>DifficultyWalking</strong>, and <strong>Income</strong> each had a relationship with <strong>HasDiabetes</strong> where <strong>HasDiabetes</strong> would be a predictor variable for them. This is not what we’re tyring to model so the varaibels will be excluded. We also identified that variables <strong>HasHealthcare</strong>, and <strong>Education</strong> did not have a distinguishable relationship with <strong>HasDiabetes</strong>. <strong>BMI</strong> appeared to be the only variable with outliers. These were removed from the data set before conducting EDA on the remaining variables.</p>
-<p>The goal of our modeling is to predict <strong>HasDiabetes</strong> using the <code>caret</code> package and <code>logLoss</code> as the metric for evaluation of how well our models predict the actual value of **HasDiabetes*. LogLoss is the negative average of the natural log of each observation’s difference from the predicted probability. LogLoss provides a metric for determining how much error exists in a classification prediction model in a similar way MSE determines how much error exists in a linear regression prediction model. What makes LogLoss a preferred method of comparison over model accuracy is that LogLoss takes predicted probability into account when determining average error in a classification prediction model while accuracy only accounts for the proportion of correct/incorrect predictions created by the model.</p>
-<p>First, lets establish the library of functions we will use to split our data set and generate our prediction models.</p>
+<p>The goal of our modeling is to predict <strong>HasDiabetes</strong> using the <code>caret</code> package and <code>logLoss</code> as the metric for evaluation of how well our models predict the actual value of **HasDiabetes*. Log loss is the negative average of the natural log of each observation’s difference from the predicted probability. Log loss provides a metric for determining how much error exists in a classification prediction model in a similar way MSE determines how much error exists in a linear regression prediction model. What makes log loss a preferred method of comparison over model accuracy is that it takes predicted probability into account when determining average error in a classification prediction model while accuracy only accounts for the proportion of correct/incorrect predictions created by the model.</p>
+<p>Before training our data for generating our prediction models, we will first need to establish the library of functions we will use to split our data set and process the observations through our prediction models.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
@@ -157,7 +157,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ranger)</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(e1071)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Next, we will read in the data file, remove variables identified as not suitable for prediction modeling during our EDA, remove outliers, update variable names, ensure the classification variables are changed to factors, and recode the factor variables for use in the prediction modeling functions . The resulting data frame is</p>
+<p>Next, we will read in the data file, remove variables identified as not suitable for prediction modeling during our EDA, remove outliers, update variable names, ensure the classification variables are changed to factors, and re-code the factor variables for use in the prediction modeling functions . The resulting data frame from these operations is</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Read in the raw data file, select variables for modeling, set-up variable </span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># names, remove outliers. This is done to ensure the modeling page works</span></span>
@@ -190,7 +190,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  $ Age              : Factor w/ 13 levels "Age1","Age2",..: 9 7 9 11 11 10 9 11 9 8 ...</code></pre>
 </div>
 </div>
-<p>We see from the structure of our subset that the data frame was converted properly and we’re ready to continue preparing the data for prediction modeling. Next we will split the data frame into training and test subsets. We will use 70% of the data set for the training model and 30% of the data set for testing our model.</p>
+<p>We see from the structure of our subset that the data frame was converted properly and we’re ready to prepare the data for prediction modeling. Next we will split the data frame into training and test subsets. We will use 70% of the data set for the training model and 30% of the data set for testing our model.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 70/30 split for training/testing subsets</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Use set.seed() to make things reproducible </span></span>
@@ -217,11 +217,12 @@ $`Test Data`
 </div>
 </div>
 <p>Review of the dimensions of both subsets shows that we successfully split the data and are ready to start generating our prediction models.</p>
+<p>Regardless of type, each training model generated will be pre-processed for centering and scaling and will have training control parameters of 5-fold cross-validation with <code>classProbs</code> set to <strong>TRUE</strong> and the <code>summaryFunction</code> set to <strong>mnLogLoss</strong>.</p>
 </section>
 <section id="logistic-regression-models" class="level3">
 <h3 class="anchored" data-anchor-id="logistic-regression-models">Logistic Regression Models</h3>
 <p>The first prediction model type we’re going to generate is a logistic regression model. Logistic regression is the estimated probability of an event occurring when considering other variables involved. It is widely used in prediction modeling when a dependent variable of interest has binary outcomes. For our prediction model, we will be the estimating the probability of a PT having diabetes with consideration of the variables <strong>HighCholesterol</strong>, <strong>BMI</strong>, <strong>BadPhysicalHealth</strong>, and <strong>Age</strong> to predict a “Yes” response in the <strong>HasDiabetes</strong> variable.</p>
-<p>There are several different logistic regression models (LRMs) that are in the <code>caret</code> package. Because of this, we are going to select three types of LRMs and compare them to determine which one we will use for comparison against a Classification Tree and Random Forest prediction models that we will generate later in this report. For each logistic regression model, we used repeated 10-fold cross validation with the number of repeats being 5 in order to give us several values to .</p>
+<p>There are several different logistic regression models (LRMs) that are in the <code>caret</code> package. Because of this, we are going to select three types of LRMs and compare them to determine which one we will use for comparison against a Classification Tree and Random Forest prediction models that we will generate later in this report. For each logistic regression model, we used 5-fold cross validation.</p>
 <p>The first logistic regression model we’re going to train is the Boosted Logistic Regression Model.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
@@ -238,7 +239,18 @@ $`Test Data`
 <span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>                        <span class="at">tuneGrid =</span> <span class="fu">expand.grid</span>(<span class="at">nIter =</span> <span class="fu">seq</span>(<span class="dv">1</span>, <span class="dv">30</span>, <span class="at">by =</span> <span class="dv">1</span>))</span>
 <span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>                        )</span>
 <span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(boostedLogistic)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(boostedLogistic)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="FinalProjectModeling_files/figure-html/boosted logistic regression model-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>We see from the graph of the outputs for each iteration’s <code>logLoss</code> that there is a sizable variance between each, where the lowest <code>logLoss</code> occurs at iteration 12, which is confirmed in the below data output.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(boostedLogistic)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Boosted Logistic Regression 
 
@@ -286,28 +298,20 @@ Resampling results across tuning parameters:
 logLoss was used to select the optimal model using the smallest value.
 The final value used for the model was nIter = 12.</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(boostedLogistic)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="FinalProjectModeling_files/figure-html/bagged logic regression-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
 </div>
 <p>The second logistic regression model we’re going to train is the Bayesian Generalized Linear Model.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>bayesianLogistic <span class="ot">&lt;-</span> <span class="fu">train</span>(HasDiabetes<span class="sc">~</span>., </span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>                        <span class="at">data=</span>modelingTrain,</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>                        <span class="at">method=</span><span class="st">"bayesglm"</span>,</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>                        <span class="at">preProcess=</span><span class="fu">c</span>(<span class="st">"center"</span>, <span class="st">"scale"</span>),</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>                        <span class="at">trControl =</span> <span class="fu">trainControl</span>(<span class="at">method =</span> <span class="st">"cv"</span>,</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>                                                 <span class="at">number =</span> <span class="dv">5</span>,</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>                                                 <span class="at">classProbs =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>                                                 <span class="at">summaryFunction =</span> mnLogLoss)</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>                        )</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>                          <span class="at">data=</span>modelingTrain,</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>                          <span class="at">method=</span><span class="st">"bayesglm"</span>,</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>                          <span class="at">preProcess=</span><span class="fu">c</span>(<span class="st">"center"</span>, <span class="st">"scale"</span>),</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>                          <span class="at">trControl =</span> <span class="fu">trainControl</span>(<span class="at">method =</span> <span class="st">"cv"</span>,</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>                                                   <span class="at">number =</span> <span class="dv">5</span>,</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>                                                   <span class="at">classProbs =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>                                                   <span class="at">summaryFunction =</span> mnLogLoss)</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>                    )</span>
 <span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(bayesianLogistic)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -326,20 +330,20 @@ Resampling results:
   0.3391554</code></pre>
 </div>
 </div>
-<p>There were no results to plot of this model because there are no tuning parameters for the <code>bayesglm</code> function.</p>
+<p>There were no results to plot of this model because there are no tuning parameters for the <code>bayesglm</code> function. We see from the above data output that the <code>logLoss</code> for the Bayesian GLM is 0.3391554.</p>
 <p>The third logistic regression model we’re going to train is the Generalized Linear Model.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>generalizedLogistic <span class="ot">&lt;-</span> <span class="fu">train</span>(HasDiabetes<span class="sc">~</span>., </span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>                        <span class="at">data=</span>modelingTrain,</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>                        <span class="at">method=</span><span class="st">"glm"</span>,</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>                        <span class="at">preProcess=</span><span class="fu">c</span>(<span class="st">"center"</span>, <span class="st">"scale"</span>),</span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>                        <span class="at">trControl =</span> <span class="fu">trainControl</span>(<span class="at">method =</span> <span class="st">"cv"</span>,</span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>                                                 <span class="at">number =</span> <span class="dv">5</span>,</span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>                                                 <span class="at">classProbs =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>                                                 <span class="at">summaryFunction =</span> mnLogLoss)</span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>                        )</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>                             <span class="at">data=</span>modelingTrain,</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>                             <span class="at">method=</span><span class="st">"glm"</span>,</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>                             <span class="at">preProcess=</span><span class="fu">c</span>(<span class="st">"center"</span>, <span class="st">"scale"</span>),</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>                             <span class="at">trControl =</span> <span class="fu">trainControl</span>(<span class="at">method =</span> <span class="st">"cv"</span>,</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>                                                      <span class="at">number =</span> <span class="dv">5</span>,</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>                                                      <span class="at">classProbs =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>                                                      <span class="at">summaryFunction =</span> mnLogLoss)</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>                       )</span>
 <span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(generalizedLogistic)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -358,8 +362,8 @@ Resampling results:
   0.339156</code></pre>
 </div>
 </div>
-<p>There were no results to plot of this model because there are no tuning parameters for the <code>glm</code> function.</p>
-<p>Now that we have the <strong>logLoss</strong> established for each logistic regression, comparison of them shows</p>
+<p>There were no results to plot of this model because there are no tuning parameters for the <code>glm</code> function. We see from the above data output that the <code>logLoss</code> for the Bayesian GLM is 0.339156.</p>
+<p>Now that we have the <code>logLoss</code> established for each logistic regression, comparison of them shows</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">list</span>(<span class="st">"Comparison of Logistic Regression Model LogLoss"</span><span class="ot">=</span><span class="fu">t</span>(<span class="fu">data.frame</span>(<span class="st">"GLM"</span><span class="ot">=</span>generalizedLogistic<span class="sc">$</span>results<span class="sc">$</span>logLoss, <span class="st">"BayesianGLM"</span><span class="ot">=</span>bayesianLogistic<span class="sc">$</span>results<span class="sc">$</span>logLoss, <span class="st">"Boosted"</span><span class="ot">=</span>boostedLogistic<span class="sc">$</span>results<span class="sc">$</span>logLoss[<span class="dv">12</span>]))))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -370,29 +374,39 @@ BayesianGLM 0.3391554
 Boosted     0.3454173</code></pre>
 </div>
 </div>
-<p>that the Bayesian Generalized Logistic Model (GLM) performed the best with a LogLoss of 0.3391554. We will use this model for overall comparison between the different prediction model types.</p>
+<p>that the Bayesian Generalized Logistic Model (bayesglm) performed the best. We will use this model for overall comparison between the different prediction model types.</p>
 </section>
 <section id="classfication-tree" class="level3">
 <h3 class="anchored" data-anchor-id="classfication-tree">Classfication Tree</h3>
-<ol type="1">
-<li>Provide a reasonably thorough explanation of what a classification tree model is and why we might try to use it.</li>
-</ol>
-<p>We will use <code>rpart</code> to fit the training data to a classification tree with varying values for the complexity parameter (cp) ranging from “0” to “0.1” and then choose the best model generated.</p>
+<p>Classification tree models are developed with the goal of predicting a group membership for a response variable of interest. The classification tree makes an initial division into regions, then subdivides the regions into smaller regions, until each observation is assigned to a terminal node (endpoint with no further subdivisions). It is often times important to “prune” the tree, which is a method of reducing the number of nodes in the tree in order to not overfit the model to the data.</p>
+<p>For our Classification Tree, we will use <code>rpart</code> to fit the training data and use varying values for the complexity parameter (cp) ranging from “0” to “0.1” in order to identify the cp that produces the model with the lowest amount of <code>logLoss</code>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>cartTree <span class="ot">&lt;-</span> <span class="fu">train</span>(HasDiabetes<span class="sc">~</span>., </span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>                        <span class="at">data=</span>modelingTrain,</span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>                        <span class="at">method=</span><span class="st">"rpart"</span>,</span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>                        <span class="at">preProcess=</span><span class="fu">c</span>(<span class="st">"center"</span>, <span class="st">"scale"</span>),</span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>                        <span class="at">trControl =</span> <span class="fu">trainControl</span>(<span class="at">method =</span> <span class="st">"cv"</span>,</span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>                                                 <span class="at">number =</span> <span class="dv">5</span>,</span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>                                                 <span class="at">classProbs =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>                                                 <span class="at">summaryFunction =</span> mnLogLoss),</span>
-<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>                        <span class="at">tuneGrid =</span> <span class="fu">data.frame</span>(<span class="at">cp =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="fl">0.1</span>, <span class="at">by =</span> <span class="fl">0.001</span>))</span>
-<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>                        )</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>                  <span class="at">data=</span>modelingTrain,</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>                  <span class="at">method=</span><span class="st">"rpart"</span>,</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>                  <span class="at">preProcess=</span><span class="fu">c</span>(<span class="st">"center"</span>, <span class="st">"scale"</span>),</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>                  <span class="at">trControl =</span> <span class="fu">trainControl</span>(<span class="at">method =</span> <span class="st">"cv"</span>,</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>                                           <span class="at">number =</span> <span class="dv">5</span>,</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>                                           <span class="at">classProbs =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>                                           <span class="at">summaryFunction =</span> mnLogLoss),</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>                  <span class="at">tuneGrid =</span> <span class="fu">data.frame</span>(<span class="at">cp =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="fl">0.1</span>, <span class="at">by =</span> <span class="fl">0.005</span>))</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>            )</span>
 <span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(cartTree)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(cartTree)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="FinalProjectModeling_files/figure-html/classification tree-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Review of the Complexity Parameter plot shows that the initial complexity parameter of “0.000” has the lowest amount of <code>logLoss</code>.</p>
+<p>The below output <code>CART</code> output confirms the complexity parameter of “0.000” had the lowest <code>logLoss</code> with a value of 0.3564431.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(cartTree)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>CART 
 
@@ -407,127 +421,36 @@ Resampling results across tuning parameters:
 
   cp     logLoss  
   0.000  0.3564431
-  0.001  0.3702911
-  0.002  0.3827386
-  0.003  0.4008598
-  0.004  0.4008598
   0.005  0.4008598
-  0.006  0.4008598
-  0.007  0.4008598
-  0.008  0.4008598
-  0.009  0.4008598
   0.010  0.4008598
-  0.011  0.4008598
-  0.012  0.4008598
-  0.013  0.4008598
-  0.014  0.4008598
   0.015  0.4008598
-  0.016  0.4008598
-  0.017  0.4008598
-  0.018  0.4008598
-  0.019  0.4008598
   0.020  0.4008598
-  0.021  0.4008598
-  0.022  0.4008598
-  0.023  0.4008598
-  0.024  0.4008598
   0.025  0.4008598
-  0.026  0.4008598
-  0.027  0.4008598
-  0.028  0.4008598
-  0.029  0.4008598
   0.030  0.4008598
-  0.031  0.4008598
-  0.032  0.4008598
-  0.033  0.4008598
-  0.034  0.4008598
   0.035  0.4008598
-  0.036  0.4008598
-  0.037  0.4008598
-  0.038  0.4008598
-  0.039  0.4008598
   0.040  0.4008598
-  0.041  0.4008598
-  0.042  0.4008598
-  0.043  0.4008598
-  0.044  0.4008598
   0.045  0.4008598
-  0.046  0.4008598
-  0.047  0.4008598
-  0.048  0.4008598
-  0.049  0.4008598
   0.050  0.4008598
-  0.051  0.4008598
-  0.052  0.4008598
-  0.053  0.4008598
-  0.054  0.4008598
   0.055  0.4008598
-  0.056  0.4008598
-  0.057  0.4008598
-  0.058  0.4008598
-  0.059  0.4008598
   0.060  0.4008598
-  0.061  0.4008598
-  0.062  0.4008598
-  0.063  0.4008598
-  0.064  0.4008598
   0.065  0.4008598
-  0.066  0.4008598
-  0.067  0.4008598
-  0.068  0.4008598
-  0.069  0.4008598
   0.070  0.4008598
-  0.071  0.4008598
-  0.072  0.4008598
-  0.073  0.4008598
-  0.074  0.4008598
   0.075  0.4008598
-  0.076  0.4008598
-  0.077  0.4008598
-  0.078  0.4008598
-  0.079  0.4008598
   0.080  0.4008598
-  0.081  0.4008598
-  0.082  0.4008598
-  0.083  0.4008598
-  0.084  0.4008598
   0.085  0.4008598
-  0.086  0.4008598
-  0.087  0.4008598
-  0.088  0.4008598
-  0.089  0.4008598
   0.090  0.4008598
-  0.091  0.4008598
-  0.092  0.4008598
-  0.093  0.4008598
-  0.094  0.4008598
   0.095  0.4008598
-  0.096  0.4008598
-  0.097  0.4008598
-  0.098  0.4008598
-  0.099  0.4008598
   0.100  0.4008598
 
 logLoss was used to select the optimal model using the smallest value.
 The final value used for the model was cp = 0.</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(cartTree)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="FinalProjectModeling_files/figure-html/CART-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
 </div>
-</div>
-</div>
-<p>Review of the data and chart shows that the initial complexity parameter of “0.000” had the lowest <code>logLoss</code> with a value of 0.3564431.</p>
 </section>
 <section id="random-forest" class="level3">
 <h3 class="anchored" data-anchor-id="random-forest">Random Forest</h3>
-<ol type="1">
-<li>Provide a reasonably thorough explanation of what a classification tree model is and why we might use it (focus on differences between it and a classification tree).</li>
-</ol>
-<p>Ranger is a computationally faster method over random forest. It has tuning parameters of <code>mtry</code>, <code>splitrule</code>, and <code>min.node.size</code> that we will use to determine the best model for comparison. While it is standard to take the square root of the number of predictor variables to determine our <code>mtry</code> value, we only have four so we will set <code>mtry</code> to compare use of 1, 2, and 3 of our predictor variables. We will not uses all four predictor variables because that is the same as a bagging model, which defeats the purpose of generating a Random Tree model. We will set <code>splitrule</code> to “extratrees” to replicate the random forest effect in <code>ranger</code>. We will compare <code>min.node.size</code> values of “1”, “10”, “100”, and “500” to determine which one is more accurate while saving computation time. The larger the value of <code>min.node.size</code>, the less time it takes to generate the trees. Due to the large number of observations in our training data set, we are trading off .</p>
+<p>A Random Forest tree is a Classification Tree that does not use all predictor variables when generating a model. Instead, it uses a random subset of predictors for each bootstrap sample it generates to create a tree fit. The Random Forest tree prevents bias in the model where it does not always include the strongest predictor in the tree like a standard Classification Tree would.</p>
+<p>For our Random Forest Tree, we used the <code>ranger</code> <code>caret</code> package in R. Ranger is a computationally faster method over random forest. It has tuning parameters of <code>mtry</code>, <code>splitrule</code>, and <code>min.node.size</code> that we will use to determine the best model for comparison. While it is standard to take the square root of the number of predictor variables to determine our <code>mtry</code> value, we only have four so we will set <code>mtry</code> to compare use of 1, 2, and 3 of our predictor variables in order to determine which parameter is the best fit for prediction modeling. We will not use all four predictor variables because that is the same as a Classification Tree model, which defeats the purpose of generating a Random Tree model. We will set <code>splitrule</code> to “extratrees” to replicate the random forest of generating effect in <code>ranger</code>. We will compare <code>min.node.size</code> values of “1”, “10”, “100”, and “500” to determine which one is more accurate while saving computation time. The larger the value of <code>min.node.size</code>, the less time it takes to generate the trees.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -535,18 +458,29 @@ The final value used for the model was cp = 0.</code></pre>
 <span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>                      <span class="at">data=</span>modelingTrain,</span>
 <span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>                      <span class="at">method=</span><span class="st">"ranger"</span>,</span>
 <span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>                      <span class="at">preProcess=</span><span class="fu">c</span>(<span class="st">"center"</span>, <span class="st">"scale"</span>),</span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>                      <span class="at">trControl =</span> <span class="fu">trainControl</span>(<span class="at">method =</span> <span class="st">"cv"</span>,</span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>                                               <span class="at">number =</span> <span class="dv">5</span>,</span>
-<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>                                               <span class="at">classProbs =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>                                               <span class="at">summaryFunction =</span> mnLogLoss),</span>
-<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>                      <span class="at">tuneGrid =</span> <span class="fu">expand.grid</span>(<span class="at">mtry =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>),</span>
-<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>                                             <span class="at">splitrule=</span><span class="st">"extratrees"</span>,</span>
-<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>                                             <span class="at">min.node.size=</span><span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">10</span>, <span class="dv">100</span>, <span class="dv">500</span>)),</span>
-<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>                      <span class="at">verbose =</span> <span class="cn">FALSE</span></span>
-<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>                                              </span>
-<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>                        )</span>
-<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(randomForest)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>                      <span class="at">verbose =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>                      <span class="at">trControl =</span> <span class="fu">trainControl</span>(<span class="at">method =</span> <span class="st">"cv"</span>,</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>                                               <span class="at">number =</span> <span class="dv">5</span>,</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>                                               <span class="at">classProbs =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>                                               <span class="at">summaryFunction =</span> mnLogLoss),</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>                      <span class="at">tuneGrid =</span> <span class="fu">expand.grid</span>(<span class="at">mtry =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>),</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>                                             <span class="at">splitrule=</span><span class="st">"extratrees"</span>,</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>                                             <span class="at">min.node.size=</span><span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">10</span>, <span class="dv">100</span>, <span class="dv">500</span>))</span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>                )</span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(randomForest)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="FinalProjectModeling_files/figure-html/RandomForest-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Review of the Minimal Node Size Plot we see that increasing the number of predictor variables greatly reduced the amount of <strong>logLoss</strong> in the model, with <code>mtry</code> of “3” having the lowest values.</p>
+<p>The below Random Forest output shows that the <code>min.node.size</code> of “10” is optimal with <code>mtry</code> of “3” for prediction modeling with a value of 0.3464193.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(randomForest)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Random Forest 
 
@@ -578,23 +512,11 @@ logLoss was used to select the optimal model using the smallest value.
 The final values used for the model were mtry = 3, splitrule = extratrees
  and min.node.size = 10.</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(randomForest)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="FinalProjectModeling_files/figure-html/RandomForest-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
 </div>
-</div>
-</div>
-<p>From the data we see that increasing the number of predictor variables greatly reduced the amount of logLoss in the model, with <code>mtry</code> of 3 and <code>min.node.size</code> being optimal for regression comparison.</p>
 </section>
 <section id="final-model-selection" class="level3">
 <h3 class="anchored" data-anchor-id="final-model-selection">Final Model Selection</h3>
-<ol type="1">
-<li>Compare the three best models and “declare an overall winner”</li>
-</ol>
-<p>In order to compare the three best models, we will need to run the training models using the best fit tuning parameters identified earlier in this report.</p>
+<p>In order to compare the three best models, we will first need to run the training models we selected with their best fit tuning parameters as identified earlier in this report.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -613,33 +535,32 @@ The final values used for the model were mtry = 3, splitrule = extratrees
 <span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a><span class="co"># selected classification tree model</span></span>
 <span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>cartTreeComp <span class="ot">&lt;-</span> <span class="fu">train</span>(HasDiabetes<span class="sc">~</span>., </span>
-<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>                        <span class="at">data=</span>modelingTrain,</span>
-<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>                        <span class="at">method=</span><span class="st">"rpart"</span>,</span>
-<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>                        <span class="at">preProcess=</span><span class="fu">c</span>(<span class="st">"center"</span>, <span class="st">"scale"</span>),</span>
-<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>                        <span class="at">trControl =</span> <span class="fu">trainControl</span>(<span class="at">method =</span> <span class="st">"cv"</span>,</span>
-<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>                                                 <span class="at">number =</span> <span class="dv">5</span>,</span>
-<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>                                                 <span class="at">classProbs =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>                                                 <span class="at">summaryFunction =</span> mnLogLoss),</span>
-<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a>                        <span class="at">tuneGrid =</span> <span class="fu">data.frame</span>(<span class="at">cp =</span> <span class="dv">0</span>)</span>
-<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a>                        )</span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>                      <span class="at">data=</span>modelingTrain,</span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>                      <span class="at">method=</span><span class="st">"rpart"</span>,</span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>                      <span class="at">preProcess=</span><span class="fu">c</span>(<span class="st">"center"</span>, <span class="st">"scale"</span>),</span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>                      <span class="at">trControl =</span> <span class="fu">trainControl</span>(<span class="at">method =</span> <span class="st">"cv"</span>,</span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>                                               <span class="at">number =</span> <span class="dv">5</span>,</span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>                                               <span class="at">classProbs =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>                                               <span class="at">summaryFunction =</span> mnLogLoss),</span>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a>                      <span class="at">tuneGrid =</span> <span class="fu">data.frame</span>(<span class="at">cp =</span> <span class="dv">0</span>)</span>
+<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a>                )</span>
 <span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a><span class="co"># selected random forest model</span></span>
 <span id="cb21-29"><a href="#cb21-29" aria-hidden="true" tabindex="-1"></a>randomForestComp <span class="ot">&lt;-</span> <span class="fu">train</span>(HasDiabetes<span class="sc">~</span>.,</span>
 <span id="cb21-30"><a href="#cb21-30" aria-hidden="true" tabindex="-1"></a>                      <span class="at">data=</span>modelingTrain,</span>
 <span id="cb21-31"><a href="#cb21-31" aria-hidden="true" tabindex="-1"></a>                      <span class="at">method=</span><span class="st">"ranger"</span>,</span>
-<span id="cb21-32"><a href="#cb21-32" aria-hidden="true" tabindex="-1"></a>                      <span class="at">preProcess=</span><span class="fu">c</span>(<span class="st">"center"</span>, <span class="st">"scale"</span>),</span>
-<span id="cb21-33"><a href="#cb21-33" aria-hidden="true" tabindex="-1"></a>                      <span class="at">trControl =</span> <span class="fu">trainControl</span>(<span class="at">method =</span> <span class="st">"cv"</span>,</span>
-<span id="cb21-34"><a href="#cb21-34" aria-hidden="true" tabindex="-1"></a>                                               <span class="at">number =</span> <span class="dv">5</span>,</span>
-<span id="cb21-35"><a href="#cb21-35" aria-hidden="true" tabindex="-1"></a>                                               <span class="at">classProbs =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb21-36"><a href="#cb21-36" aria-hidden="true" tabindex="-1"></a>                                               <span class="at">summaryFunction =</span> mnLogLoss),</span>
-<span id="cb21-37"><a href="#cb21-37" aria-hidden="true" tabindex="-1"></a>                      <span class="at">tuneGrid =</span> <span class="fu">expand.grid</span>(<span class="at">mtry =</span> <span class="dv">3</span>,</span>
-<span id="cb21-38"><a href="#cb21-38" aria-hidden="true" tabindex="-1"></a>                                             <span class="at">splitrule=</span><span class="st">"extratrees"</span>,</span>
-<span id="cb21-39"><a href="#cb21-39" aria-hidden="true" tabindex="-1"></a>                                             <span class="at">min.node.size=</span><span class="dv">10</span>),</span>
-<span id="cb21-40"><a href="#cb21-40" aria-hidden="true" tabindex="-1"></a>                      <span class="at">verbose =</span> <span class="cn">FALSE</span></span>
-<span id="cb21-41"><a href="#cb21-41" aria-hidden="true" tabindex="-1"></a>                                              </span>
-<span id="cb21-42"><a href="#cb21-42" aria-hidden="true" tabindex="-1"></a>                        )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb21-32"><a href="#cb21-32" aria-hidden="true" tabindex="-1"></a>                      <span class="at">verbose =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb21-33"><a href="#cb21-33" aria-hidden="true" tabindex="-1"></a>                      <span class="at">preProcess=</span><span class="fu">c</span>(<span class="st">"center"</span>, <span class="st">"scale"</span>),</span>
+<span id="cb21-34"><a href="#cb21-34" aria-hidden="true" tabindex="-1"></a>                      <span class="at">trControl =</span> <span class="fu">trainControl</span>(<span class="at">method =</span> <span class="st">"cv"</span>,</span>
+<span id="cb21-35"><a href="#cb21-35" aria-hidden="true" tabindex="-1"></a>                                               <span class="at">number =</span> <span class="dv">5</span>,</span>
+<span id="cb21-36"><a href="#cb21-36" aria-hidden="true" tabindex="-1"></a>                                               <span class="at">classProbs =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb21-37"><a href="#cb21-37" aria-hidden="true" tabindex="-1"></a>                                               <span class="at">summaryFunction =</span> mnLogLoss),</span>
+<span id="cb21-38"><a href="#cb21-38" aria-hidden="true" tabindex="-1"></a>                      <span class="at">tuneGrid =</span> <span class="fu">expand.grid</span>(<span class="at">mtry =</span> <span class="dv">3</span>,</span>
+<span id="cb21-39"><a href="#cb21-39" aria-hidden="true" tabindex="-1"></a>                                             <span class="at">splitrule=</span><span class="st">"extratrees"</span>,</span>
+<span id="cb21-40"><a href="#cb21-40" aria-hidden="true" tabindex="-1"></a>                                             <span class="at">min.node.size=</span><span class="dv">10</span>)</span>
+<span id="cb21-41"><a href="#cb21-41" aria-hidden="true" tabindex="-1"></a>                    )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Next we will generate the model predictions, accuracy, and compare the results to one another.</p>
+<p>Next we will generate the model predictions, test the predictions for accuracy, and finally compare the accuracy results of each model to one another.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>) </span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -663,9 +584,10 @@ The final values used for the model were mtry = 3, splitrule = extratrees
 <span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a>modelComps <span class="ot">&lt;-</span> <span class="fu">t</span>(<span class="fu">data.frame</span>(<span class="st">"BayesianGLM"</span><span class="ot">=</span>bayesianLogisticComp_accuracy<span class="sc">$</span>overall[<span class="dv">1</span>], <span class="st">"RPart"</span><span class="ot">=</span>cartTreeComp_accuracy<span class="sc">$</span>overall[<span class="dv">1</span>], <span class="st">"RandomForest"</span><span class="ot">=</span>randomForestComp_accuracy<span class="sc">$</span>overall[<span class="dv">1</span>]))</span>
 <span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a><span class="co"># output the results</span></span>
-<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(modelComps)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">list</span>(<span class="st">"Comparison: Prediciton Model Accuracy"</span><span class="ot">=</span>modelComps))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>              Accuracy
+<pre><code>$`Comparison: Prediciton Model Accuracy`
+              Accuracy
 BayesianGLM  0.8638310
 RPart        0.8600268
 RandomForest 0.8623729</code></pre>

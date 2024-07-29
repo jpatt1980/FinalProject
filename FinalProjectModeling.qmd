@@ -13,11 +13,11 @@ The diabetes binary health indicators file is a subset of 22 variables and 253,6
 
 In our EDA we identified that the variables of **HighBP**, **HighCholesterol**, **BMI**, **GeneralHealth**, **BadMentalHealth**, **BadPhysicalHealth**, and **Age** each had a relationship with **HasDiabetes** that could be used to predict the outcome of **HasDiabetes**. Our EDA identified that the variables **Stroke**, **HeartDiseaseorAttack**, **PhysActivity**, **ConsumesFruits**, **ConsumesVeggies**, **HeavyAlcoholUse**, **ExpensiveTreatment**, **DifficultyWalking**, and **Income** each had a relationship with **HasDiabetes** where **HasDiabetes** would be a predictor variable for them. This is not what we're tyring to model so the varaibels will be excluded. We also identified that variables **HasHealthcare**, and **Education** did not have a distinguishable relationship with **HasDiabetes**. **BMI** appeared to be the only variable with outliers. These were removed from the data set before conducting EDA on the remaining variables.
 
-The goal of our modeling is to predict **HasDiabetes** using the `caret` package and `logLoss` as the metric for evaluation of how well our models predict the actual value of \*\*HasDiabetes\*. LogLoss is the negative average of the natural log of each observation's difference from the predicted probability. LogLoss provides a metric for determining how much error exists in a classification prediction model in a similar way MSE determines how much error exists in a linear regression prediction model. What makes LogLoss a preferred method of comparison over model accuracy is that LogLoss takes predicted probability into account when determining average error in a classification prediction model while accuracy only accounts for the proportion of correct/incorrect predictions created by the model.
+The goal of our modeling is to predict **HasDiabetes** using the `caret` package and `logLoss` as the metric for evaluation of how well our models predict the actual value of \*\*HasDiabetes\*. Log loss is the negative average of the natural log of each observation's difference from the predicted probability. Log loss provides a metric for determining how much error exists in a classification prediction model in a similar way MSE determines how much error exists in a linear regression prediction model. What makes log loss a preferred method of comparison over model accuracy is that it takes predicted probability into account when determining average error in a classification prediction model while accuracy only accounts for the proportion of correct/incorrect predictions created by the model.
 
-First, lets establish the library of functions we will use to split our data set and generate our prediction models.
+Before training our data for generating our prediction models, we will first need to establish the library of functions we will use to split our data set and process the observations through our prediction models.
 
-```{r warning=FALSE, message=FALSE}
+```{r create library, warning=FALSE, message=FALSE}
 
 library(tidyverse)
 library(dplyr)
@@ -29,7 +29,7 @@ library(e1071)
 
 ```
 
-Next, we will read in the data file, remove variables identified as not suitable for prediction modeling during our EDA, remove outliers, update variable names, ensure the classification variables are changed to factors, and recode the factor variables for use in the prediction modeling functions . The resulting data frame is
+Next, we will read in the data file, remove variables identified as not suitable for prediction modeling during our EDA, remove outliers, update variable names, ensure the classification variables are changed to factors, and re-code the factor variables for use in the prediction modeling functions . The resulting data frame from these operations is
 
 ```{r Dataframe set-up}
 
@@ -58,7 +58,7 @@ str(diabetes_df_model)
 
 ```
 
-We see from the structure of our subset that the data frame was converted properly and we're ready to continue preparing the data for prediction modeling. Next we will split the data frame into training and test subsets. We will use 70% of the data set for the training model and 30% of the data set for testing our model.
+We see from the structure of our subset that the data frame was converted properly and we're ready to prepare the data for prediction modeling. Next we will split the data frame into training and test subsets. We will use 70% of the data set for the training model and 30% of the data set for testing our model.
 
 ```{r Split the df for training & testing}
 
@@ -81,17 +81,19 @@ print(list("Traning Data"=dim(modelingTrain), "Test Data"=dim(modelingTest)))
 
 ```
 
-Review of the dimensions of both subsets shows that we successfully split the data and are ready to start generating our prediction models.
+Review of the dimensions of both subsets shows that we successfully split the data and are ready to start generating our prediction models. 
+
+Regardless of type, each training model generated will be pre-processed for centering and scaling and will have training control parameters of 5-fold cross-validation with `classProbs` set to **TRUE** and the `summaryFunction` set to **mnLogLoss**. 
 
 ### Logistic Regression Models
 
 The first prediction model type we're going to generate is a logistic regression model. Logistic regression is the estimated probability of an event occurring when considering other variables involved. It is widely used in prediction modeling when a dependent variable of interest has binary outcomes. For our prediction model, we will be the estimating the probability of a PT having diabetes with consideration of the variables **HighCholesterol**, **BMI**, **BadPhysicalHealth**, and **Age** to predict a "Yes" response in the **HasDiabetes** variable.
 
-There are several different logistic regression models (LRMs) that are in the `caret` package. Because of this, we are going to select three types of LRMs and compare them to determine which one we will use for comparison against a Classification Tree and Random Forest prediction models that we will generate later in this report. For each logistic regression model, we used repeated 10-fold cross validation with the number of repeats being 5 in order to give us several values to .
+There are several different logistic regression models (LRMs) that are in the `caret` package. Because of this, we are going to select three types of LRMs and compare them to determine which one we will use for comparison against a Classification Tree and Random Forest prediction models that we will generate later in this report. For each logistic regression model, we used 5-fold cross validation.
 
 The first logistic regression model we're going to train is the Boosted Logistic Regression Model. 
 
-```{r boosted logic regression}
+```{r boosted logistic regression model}
 
 set.seed(1)
 
@@ -107,33 +109,39 @@ boostedLogistic <- train(HasDiabetes ~ HighCholesterol + BMI + BadPhysicalHealth
                         tuneGrid = expand.grid(nIter = seq(1, 30, by = 1))
                         )
 
-print(boostedLogistic)
-
 plot(boostedLogistic)
+
+```
+
+We see from the graph of the outputs for each iteration's `logLoss` that there is a sizable variance between each, where the lowest `logLoss` occurs at iteration 12, which is confirmed in the below data output. 
+
+```{r output of boostedLogistic }
+
+print(boostedLogistic)
 
 ```
 
 The second logistic regression model we're going to train is the Bayesian Generalized Linear Model.
 
-```{r bayesglm logistic regression, warning=FALSE, message=FALSE}
+```{r bayesglm logistic regression model, warning=FALSE, message=FALSE}
 
 set.seed(1)
 
 bayesianLogistic <- train(HasDiabetes~., 
-                        data=modelingTrain,
-                        method="bayesglm",
-                        preProcess=c("center", "scale"),
-                        trControl = trainControl(method = "cv",
-                                                 number = 5,
-                                                 classProbs = TRUE,
-                                                 summaryFunction = mnLogLoss)
-                        )
+                          data=modelingTrain,
+                          method="bayesglm",
+                          preProcess=c("center", "scale"),
+                          trControl = trainControl(method = "cv",
+                                                   number = 5,
+                                                   classProbs = TRUE,
+                                                   summaryFunction = mnLogLoss)
+                    )
 
 print(bayesianLogistic)
 
 ```
 
-There were no results to plot of this model because there are no tuning parameters for the `bayesglm` function.
+There were no results to plot of this model because there are no tuning parameters for the `bayesglm` function. We see from the above data output that the `logLoss` for the Bayesian GLM is 0.3391554. 
 
 The third logistic regression model we're going to train is the Generalized Linear Model.
 
@@ -142,22 +150,22 @@ The third logistic regression model we're going to train is the Generalized Line
 set.seed(1)
 
 generalizedLogistic <- train(HasDiabetes~., 
-                        data=modelingTrain,
-                        method="glm",
-                        preProcess=c("center", "scale"),
-                        trControl = trainControl(method = "cv",
-                                                 number = 5,
-                                                 classProbs = TRUE,
-                                                 summaryFunction = mnLogLoss)
-                        )
+                             data=modelingTrain,
+                             method="glm",
+                             preProcess=c("center", "scale"),
+                             trControl = trainControl(method = "cv",
+                                                      number = 5,
+                                                      classProbs = TRUE,
+                                                      summaryFunction = mnLogLoss)
+                       )
 
 print(generalizedLogistic)
 
 ```
 
-The Generalized Logistic Model output shows us that logLoss for the model is 0.339156. There were no results to plot of this model because there are no tuning parameters for the `glm` function.
+There were no results to plot of this model because there are no tuning parameters for the `glm` function. We see from the above data output that the `logLoss` for the Bayesian GLM is 0.339156.
 
-Now that we have the **logLoss** established for each logistic regression, comparison of them shows
+Now that we have the `logLoss` established for each logistic regression, comparison of them shows
 
 ```{r compare logistic regression models}
 
@@ -171,36 +179,42 @@ that the Bayesian Generalized Logistic Model (bayesglm) performed the best. We w
 
 Classification tree models are developed with the goal of predicting a group membership for a response variable of interest. The classification tree makes an initial division into regions, then subdivides the regions into smaller regions, until each observation is assigned to a terminal node (endpoint with no further subdivisions). It is often times important to "prune" the tree, which is a method of reducing the number of nodes in the tree in order to not overfit the model to the data. 
 
-For our Classification Tree, we will use `rpart` to fit the training data and use varying values for the complexity parameter (cp) ranging from "0" to "0.1" in order to identify the cp that produces the model with the lowest amount of **logLoss**. 
+For our Classification Tree, we will use `rpart` to fit the training data and use varying values for the complexity parameter (cp) ranging from "0" to "0.1" in order to identify the cp that produces the model with the lowest amount of `logLoss`. 
 
-```{r CART, warning=FALSE, message=FALSE}
+```{r classification tree, warning=FALSE, message=FALSE}
 
 set.seed(1)
 
 cartTree <- train(HasDiabetes~., 
-                        data=modelingTrain,
-                        method="rpart",
-                        preProcess=c("center", "scale"),
-                        trControl = trainControl(method = "cv",
-                                                 number = 5,
-                                                 classProbs = TRUE,
-                                                 summaryFunction = mnLogLoss),
-                        tuneGrid = data.frame(cp = seq(0, 0.1, by = 0.001))
-                        )
-
-print(cartTree)
+                  data=modelingTrain,
+                  method="rpart",
+                  preProcess=c("center", "scale"),
+                  trControl = trainControl(method = "cv",
+                                           number = 5,
+                                           classProbs = TRUE,
+                                           summaryFunction = mnLogLoss),
+                  tuneGrid = data.frame(cp = seq(0, 0.1, by = 0.005))
+            )
 
 plot(cartTree)
 
 ```
 
-Review of the data and chart shows that the initial complexity parameter of "0.000" had the lowest `logLoss` with a value of 0.3564431. 
+Review of the Complexity Parameter plot shows that the initial complexity parameter of "0.000" has the lowest amount of `logLoss`. 
+
+The below output `CART` output confirms the complexity parameter of "0.000" had the lowest `logLoss` with a value of 0.3564431. 
+
+```{r CART model output}
+
+print(cartTree)
+
+```
 
 ### Random Forest
 
-1.  Provide a reasonably thorough explanation of what a classification tree model is and why we might use it (focus on differences between it and a classification tree).
+A Random Forest tree is a Classification Tree that does not use all predictor variables when generating a model. Instead, it uses a random subset of predictors for each bootstrap sample it generates to create a tree fit. The Random Forest tree prevents bias in the model where it does not always include the strongest predictor in the tree like a standard Classification Tree would. 
 
-Ranger is a computationally faster method over random forest. It has tuning parameters of `mtry`, `splitrule`, and `min.node.size` that we will use to determine the best model for comparison. While it is standard to take the square root of the number of predictor variables to determine our `mtry` value, we only have four so we will set `mtry` to compare use of 1, 2, and 3 of our predictor variables. We will not uses all four predictor variables because that is the same as a bagging model, which defeats the purpose of generating a Random Tree model. We will set `splitrule` to "extratrees" to replicate the random forest effect in `ranger`. We will compare `min.node.size` values of "1", "10", "100", and "500" to determine which one is more accurate while saving computation time. The larger the value of `min.node.size`, the less time it takes to generate the trees. Due to the large number of observations in our training data set, we are trading off . 
+For our Random Forest Tree, we used the `ranger` `caret` package in R. Ranger is a computationally faster method over random forest. It has tuning parameters of `mtry`, `splitrule`, and `min.node.size` that we will use to determine the best model for comparison. While it is standard to take the square root of the number of predictor variables to determine our `mtry` value, we only have four so we will set `mtry` to compare use of 1, 2, and 3 of our predictor variables in order to determine which parameter is the best fit for prediction modeling. We will not use all four predictor variables because that is the same as a Classification Tree model, which defeats the purpose of generating a Random Tree model. We will set `splitrule` to "extratrees" to replicate the random forest of generating effect in `ranger`. We will compare `min.node.size` values of "1", "10", "100", and "500" to determine which one is more accurate while saving computation time. The larger the value of `min.node.size`, the less time it takes to generate the trees.
 
 ```{r RandomForest, warning=FALSE, message=FALSE}
 
@@ -210,28 +224,33 @@ randomForest <- train(HasDiabetes~.,
                       data=modelingTrain,
                       method="ranger",
                       preProcess=c("center", "scale"),
+                      verbose = FALSE,
                       trControl = trainControl(method = "cv",
                                                number = 5,
                                                classProbs = TRUE,
                                                summaryFunction = mnLogLoss),
                       tuneGrid = expand.grid(mtry = c(1,2,3),
                                              splitrule="extratrees",
-                                             min.node.size=c(1, 10, 100, 500)),
-                      verbose = FALSE
-                                              
-                        )
-
-print(randomForest)
+                                             min.node.size=c(1, 10, 100, 500))
+                )
 
 plot(randomForest)
 
 ```
 
-From the data we see that increasing the number of predictor variables greatly reduced the amount of logLoss in the model, with `mtry` of 3 and `min.node.size` being optimal for regression comparison.  
+Review of the Minimal Node Size Plot we see that increasing the number of predictor variables greatly reduced the amount of **logLoss** in the model, with `mtry` of "3" having the lowest values.
+
+The below Random Forest output shows that the `min.node.size` of "10" is optimal with `mtry` of "3" for prediction modeling with a value of 0.3464193. 
+
+```{r Random Tree data output}
+
+print(randomForest)
+
+```
 
 ### Final Model Selection
 
-In order to compare the three best models, we will first need to run the training models using the best fit tuning parameters identified earlier in this report. 
+In order to compare the three best models, we will first need to run the training models we selected with their best fit tuning parameters as identified earlier in this report. 
 
 ```{r produce training models with best fit tuning params, warning=FALSE, message=FALSE}
 
@@ -252,20 +271,21 @@ bayesianLogisticComp <- train(HasDiabetes~.,
 
 # selected classification tree model
 cartTreeComp <- train(HasDiabetes~., 
-                        data=modelingTrain,
-                        method="rpart",
-                        preProcess=c("center", "scale"),
-                        trControl = trainControl(method = "cv",
-                                                 number = 5,
-                                                 classProbs = TRUE,
-                                                 summaryFunction = mnLogLoss),
-                        tuneGrid = data.frame(cp = 0)
-                        )
+                      data=modelingTrain,
+                      method="rpart",
+                      preProcess=c("center", "scale"),
+                      trControl = trainControl(method = "cv",
+                                               number = 5,
+                                               classProbs = TRUE,
+                                               summaryFunction = mnLogLoss),
+                      tuneGrid = data.frame(cp = 0)
+                )
 
 # selected random forest model
 randomForestComp <- train(HasDiabetes~.,
                       data=modelingTrain,
                       method="ranger",
+                      verbose = FALSE,
                       preProcess=c("center", "scale"),
                       trControl = trainControl(method = "cv",
                                                number = 5,
@@ -273,14 +293,12 @@ randomForestComp <- train(HasDiabetes~.,
                                                summaryFunction = mnLogLoss),
                       tuneGrid = expand.grid(mtry = 3,
                                              splitrule="extratrees",
-                                             min.node.size=10),
-                      verbose = FALSE
-                                              
-                        )
+                                             min.node.size=10)
+                    )
 
 ```
 
-Next we will generate the model predictions, test the predicitons for accuracy, and finally compare the accuracy results of each model to one another. 
+Next we will generate the model predictions, test the predictions for accuracy, and finally compare the accuracy results of each model to one another. 
 
 ```{r predict-validate-compare model accuracy resutls}
 
@@ -306,7 +324,7 @@ randomForestComp_accuracy <- confusionMatrix(randomForestComp_train_pred, modeli
 modelComps <- t(data.frame("BayesianGLM"=bayesianLogisticComp_accuracy$overall[1], "RPart"=cartTreeComp_accuracy$overall[1], "RandomForest"=randomForestComp_accuracy$overall[1]))
 
 # output the results
-print(modelComps)
+print(list("Comparison: Prediciton Model Accuracy"=modelComps))
 
 
 ```
@@ -316,6 +334,7 @@ Review of the accuracy for each model when predicting the outcome of **HasDiabet
 ### Acknoweldgements
 
 Inspiration for approaching the Random Forest model training came from several of my fellow students and Professor Post in ST 558-651 SUM1 2024. Their contributions to the discussion forum topics related to the final project were paramount to my concept development in how to approach generating the Random Forest models in the most time efficient manner. 
+
 
 
 
