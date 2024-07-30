@@ -37,12 +37,12 @@ Next, we will read in the data file, remove variables identified as not suitable
 # names, remove outliers. This is done to ensure the modeling page works
 # independent of the EDA page.  
 
-diabetes_df_model <- read.csv("./FinalProjectRawData/diabetes_binary_health_indicators_BRFSS2015.csv")
+diabetes_df_model <- read.csv("diabetes_binary_health_indicators_BRFSS2015.csv")
 
 diabetes_df_model <- as_tibble(diabetes_df_model)
 
 diabetes_df_model <- diabetes_df_model |>
-  select(Diabetes_binary, HighChol, BMI, PhysHlth, Age) |>
+  dplyr::select(Diabetes_binary, HighChol, BMI, PhysHlth, Age) |>
   filter(BMI >= 13.5) |>
   filter(BMI <= 50 ) |>
   dplyr::rename("HasDiabetes" = Diabetes_binary, 
@@ -81,9 +81,9 @@ print(list("Traning Data"=dim(modelingTrain), "Test Data"=dim(modelingTest)))
 
 ```
 
-Review of the dimensions of both subsets shows that we successfully split the data and are ready to start generating our prediction models. 
+Review of the dimensions of both subsets shows that we successfully split the data and are ready to start generating our prediction models.
 
-Regardless of type, each training model generated will be pre-processed for centering and scaling and will have training control parameters of 5-fold cross-validation with `classProbs` set to **TRUE** and the `summaryFunction` set to **mnLogLoss**. 
+Regardless of type, each training model generated will be pre-processed for centering and scaling and will have training control parameters of 5-fold cross-validation with `classProbs` set to **TRUE** and the `summaryFunction` set to **mnLogLoss**.
 
 ### Logistic Regression Models
 
@@ -91,7 +91,7 @@ The first prediction model type we're going to generate is a logistic regression
 
 There are several different logistic regression models (LRMs) that are in the `caret` package. Because of this, we are going to select three types of LRMs and compare them to determine which one we will use for comparison against a Classification Tree and Random Forest prediction models that we will generate later in this report. For each logistic regression model, we used 5-fold cross validation.
 
-The first logistic regression model we're going to train is the Boosted Logistic Regression Model. 
+The first logistic regression model we're going to train is the Boosted Logistic Regression Model.
 
 ```{r boosted logistic regression model}
 
@@ -113,7 +113,7 @@ plot(boostedLogistic)
 
 ```
 
-We see from the graph of the outputs for each iteration's `logLoss` that there is a sizable variance between each, where the lowest `logLoss` occurs at iteration 12, which is confirmed in the below data output. 
+We see from the graph of the outputs for each iteration's `logLoss` that there is a sizable variance between each, where the lowest `logLoss` occurs at iteration 12, which is confirmed in the below data output.
 
 ```{r output of boostedLogistic }
 
@@ -141,7 +141,7 @@ print(bayesianLogistic)
 
 ```
 
-There were no results to plot of this model because there are no tuning parameters for the `bayesglm` function. We see from the above data output that the `logLoss` for the Bayesian GLM is 0.3391554. 
+There were no results to plot of this model because there are no tuning parameters for the `bayesglm` function. We see from the above data output that the `logLoss` for the Bayesian GLM is 0.3391554.
 
 The third logistic regression model we're going to train is the Generalized Linear Model.
 
@@ -173,13 +173,13 @@ print(list("Comparison of Logistic Regression Model LogLoss"=t(data.frame("GLM"=
 
 ```
 
-that the Bayesian Generalized Logistic Model (bayesglm) performed the best. We will use this model for overall comparison between the different prediction model types. 
+that the Bayesian Generalized Logistic Model (bayesglm) performed the best. We will use this model for overall comparison between the different prediction model types.
 
 ### Classfication Tree
 
-Classification tree models are developed with the goal of predicting a group membership for a response variable of interest. The classification tree makes an initial division into regions, then subdivides the regions into smaller regions, until each observation is assigned to a terminal node (endpoint with no further subdivisions). It is often times important to "prune" the tree, which is a method of reducing the number of nodes in the tree in order to not overfit the model to the data. 
+Classification tree models are developed with the goal of predicting a group membership for a response variable of interest. The classification tree makes an initial division into regions, then subdivides the regions into smaller regions, until each observation is assigned to a terminal node (endpoint with no further subdivisions). It is often times important to "prune" the tree, which is a method of reducing the number of nodes in the tree in order to not overfit the model to the data.
 
-For our Classification Tree, we will use `rpart` to fit the training data and use varying values for the complexity parameter (cp) ranging from "0" to "0.1" in order to identify the cp that produces the model with the lowest amount of `logLoss`. 
+For our Classification Tree, we will use `rpart` to fit the training data and use varying values for the complexity parameter (cp) ranging from "0" to "0.1" in order to identify the cp that produces the model with the lowest amount of `logLoss`.
 
 ```{r classification tree, warning=FALSE, message=FALSE}
 
@@ -200,9 +200,9 @@ plot(cartTree)
 
 ```
 
-Review of the Complexity Parameter plot shows that the initial complexity parameter of "0.000" has the lowest amount of `logLoss`. 
+Review of the Complexity Parameter plot shows that the initial complexity parameter of "0.000" has the lowest amount of `logLoss`.
 
-The below output `CART` output confirms the complexity parameter of "0.000" had the lowest `logLoss` with a value of 0.3564431. 
+The below output `CART` output confirms the complexity parameter of "0.000" had the lowest `logLoss` with a value of 0.3564431.
 
 ```{r CART model output}
 
@@ -212,7 +212,7 @@ print(cartTree)
 
 ### Random Forest
 
-A Random Forest tree is a Classification Tree that does not use all predictor variables when generating a model. Instead, it uses a random subset of predictors for each bootstrap sample it generates to create a tree fit. The Random Forest tree prevents bias in the model where it does not always include the strongest predictor in the tree like a standard Classification Tree would. 
+A Random Forest tree is a Classification Tree that does not use all predictor variables when generating a model. Instead, it uses a random subset of predictors for each bootstrap sample it generates to create a tree fit. The Random Forest tree prevents bias in the model where it does not always include the strongest predictor in the tree like a standard Classification Tree would.
 
 For our Random Forest Tree, we used the `ranger` `caret` package in R. Ranger is a computationally faster method over random forest. It has tuning parameters of `mtry`, `splitrule`, and `min.node.size` that we will use to determine the best model for comparison. While it is standard to take the square root of the number of predictor variables to determine our `mtry` value, we only have four so we will set `mtry` to compare use of 1, 2, and 3 of our predictor variables in order to determine which parameter is the best fit for prediction modeling. We will not use all four predictor variables because that is the same as a Classification Tree model, which defeats the purpose of generating a Random Tree model. We will set `splitrule` to "extratrees" to replicate the random forest of generating effect in `ranger`. We will compare `min.node.size` values of "1", "10", "100", and "500" to determine which one is more accurate while saving computation time. The larger the value of `min.node.size`, the less time it takes to generate the trees.
 
@@ -240,7 +240,7 @@ plot(randomForest)
 
 Review of the Minimal Node Size Plot we see that increasing the number of predictor variables greatly reduced the amount of **logLoss** in the model, with `mtry` of "3" having the lowest values.
 
-The below Random Forest output shows that the `min.node.size` of "10" is optimal with `mtry` of "3" for prediction modeling with a value of 0.3464193. 
+The below Random Forest output shows that the `min.node.size` of "10" is optimal with `mtry` of "3" for prediction modeling with a value of 0.3464193.
 
 ```{r Random Tree data output}
 
@@ -250,7 +250,7 @@ print(randomForest)
 
 ### Final Model Selection
 
-In order to compare the three best models, we will first need to run the training models we selected with their best fit tuning parameters as identified earlier in this report. 
+In order to compare the three best models, we will first need to run the training models we selected with their best fit tuning parameters as identified earlier in this report.
 
 ```{r produce training models with best fit tuning params, warning=FALSE, message=FALSE}
 
@@ -298,7 +298,7 @@ randomForestComp <- train(HasDiabetes~.,
 
 ```
 
-Next we will generate the model predictions, test the predictions for accuracy, and finally compare the accuracy results of each model to one another. 
+Next we will generate the model predictions, test the predictions for accuracy, and finally compare the accuracy results of each model to one another.
 
 ```{r predict-validate-compare model accuracy resutls}
 
@@ -329,12 +329,9 @@ print(list("Comparison: Prediciton Model Accuracy"=modelComps))
 
 ```
 
-Review of the accuracy for each model when predicting the outcome of **HasDiabetes** shows that all three models have an accuracy rate of 86% or higher. The `BayesianGLM` model has the highest level of accuracy at just over 86.383% and will be selected for use in the API. 
+Review of the accuracy for each model when predicting the outcome of **HasDiabetes** shows that all three models have an accuracy rate of 86% or higher. The `BayesianGLM` model has the highest level of accuracy at just over 86.383% and will be selected for use in the API.
 
 ### Acknoweldgements
 
-Inspiration for approaching the Random Forest model training came from several of my fellow students and Professor Post in ST 558-651 SUM1 2024. Their contributions to the discussion forum topics related to the final project were paramount to my concept development in how to approach generating the Random Forest models in the most time efficient manner. 
-
-
-
+Inspiration for approaching the Random Forest model training came from several of my fellow students and Professor Post in ST 558-651 SUM1 2024. Their contributions to the discussion forum topics related to the final project were paramount to my concept development in how to approach generating the Random Forest models in the most time efficient manner.
 

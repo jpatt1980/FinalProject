@@ -194,7 +194,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Use a relative path to import the data. </span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>diabetes_df <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"./FinalProjectRawData/diabetes_binary_health_indicators_BRFSS2015.csv"</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>diabetes_df <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"diabetes_binary_health_indicators_BRFSS2015.csv"</span>)</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>diabetes_df <span class="ot">&lt;-</span> <span class="fu">as_tibble</span>(diabetes_df)</span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
@@ -1326,7 +1326,7 @@ $`Cummulative Proportion of 3 largest Age groups, HasDiabetes - Yes`
 <p>Now that we have identified the variables with relationships to <strong>HasDiabetes</strong>, we will consider if they are independent from one another. Review of a heat plot of <strong>HasDiabetes</strong> compared to the six predictor variables shows</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb114"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb114-1"><a href="#cb114-1" aria-hidden="true" tabindex="-1"></a>diabetes_df_model <span class="ot">&lt;-</span> diabetes_df <span class="sc">|&gt;</span></span>
-<span id="cb114-2"><a href="#cb114-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(HasDiabetes, HighCholesterol, BMI, GeneralHealth, BadMentalHealth, BadPhysicalHealth, Age) </span>
+<span id="cb114-2"><a href="#cb114-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(HasDiabetes, HighCholesterol, BMI, GeneralHealth, BadMentalHealth, BadPhysicalHealth, Age) </span>
 <span id="cb114-3"><a href="#cb114-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb114-4"><a href="#cb114-4" aria-hidden="true" tabindex="-1"></a>independenceCheck <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(<span class="sc">~</span>., </span>
 <span id="cb114-5"><a href="#cb114-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">data=</span>diabetes_df_model) <span class="sc">|&gt;</span></span>

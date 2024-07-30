@@ -86,7 +86,7 @@ Next, we will read-in the data using a relative path to the folder where the dat
 
 # Use a relative path to import the data. 
 
-diabetes_df <- read.csv("./FinalProjectRawData/diabetes_binary_health_indicators_BRFSS2015.csv")
+diabetes_df <- read.csv("diabetes_binary_health_indicators_BRFSS2015.csv")
 
 diabetes_df <- as_tibble(diabetes_df)
 
@@ -141,7 +141,7 @@ Review of the data set summary shows that **BMI** appears to be centered with ou
 
 ### Summarizations
 
-The first variable we will investigate is **BMI**. 
+The first variable we will investigate is **BMI**.
 
 ```{r BMI summary}
 
@@ -193,7 +193,7 @@ print(list("Number of BMI Oultiers"=BMIoutliers))
 print(list("BMI Outlier portion of data set (version 2)"=BMIoutliers/nrow(diabetes_df)))
 ```
 
-we updated the parameters and found there to be 2202 outlier observations which account for less than 1% of the data set. It would be reasonable to remove these observations from the data set before prediction model training. Removing these outleris from the data set generates the updated data frame below. 
+we updated the parameters and found there to be 2202 outlier observations which account for less than 1% of the data set. It would be reasonable to remove these observations from the data set before prediction model training. Removing these outleris from the data set generates the updated data frame below.
 
 ```{r remove BMI outleirs from the data frame}
 
@@ -644,7 +644,7 @@ print(BadMentalHealth_by_histplot)
 
 that the majority of the observations in both categories of **HasDiabetes** follow the similar trend where the majority of non-zero values in **BadMentalHealth** are in the range of 1-10 days. After remvoing the zero values for analysis, we compared the proportions of 10-day **BadMentalHealth** ranges between the **HasDiabetes** groups.
 
-The data table generated after removing the zero entries is listed below. 
+The data table generated after removing the zero entries is listed below.
 
 ```{r chart of BadMentalHealth non-zeros, warning=FALSE, message=FALSE}
 
@@ -657,7 +657,7 @@ print(BadMentalHealth_by_nozero, n=60)
 
 ```
 
-The format of the table makes it difficult to compare the **HasDiabetes** group entries. To remedy this, we will bin the **BadMentalHealth** responses into 10-day ranges determine the proportions of each bin as it relates to the corresponding **HasDiabetes** group. We will then compare the bins between the "No" and "Yes" **HasDiabetes** groups to determine if there is any relationship between **BadMentalHealth** and **HasDiabetes**. 
+The format of the table makes it difficult to compare the **HasDiabetes** group entries. To remedy this, we will bin the **BadMentalHealth** responses into 10-day ranges determine the proportions of each bin as it relates to the corresponding **HasDiabetes** group. We will then compare the bins between the "No" and "Yes" **HasDiabetes** groups to determine if there is any relationship between **BadMentalHealth** and **HasDiabetes**.
 
 ```{r distribution comparisons of BadMentalHealth by HasDiabetes groups, warning=FALSE, message=FALSE}
 
@@ -904,7 +904,7 @@ Now that we have identified the variables with relationships to **HasDiabetes**,
 ```{r generate correlation matrix of predictor variables, warning=FALSE, message=FALSE}
 
 diabetes_df_model <- diabetes_df |>
-  select(HasDiabetes, HighCholesterol, BMI, GeneralHealth, BadMentalHealth, BadPhysicalHealth, Age) 
+  dplyr::select(HasDiabetes, HighCholesterol, BMI, GeneralHealth, BadMentalHealth, BadPhysicalHealth, Age) 
 
 independenceCheck <- model.matrix(~., 
              data=diabetes_df_model) |>
@@ -930,3 +930,4 @@ Because **BadPhysicalHealth** greatly influences both **GeneralHealth** and **Ba
 The remaining combinations of variable groups all have weak correlation coefficients in the -0.30 to 0.30 range. Each of these variables appear to be independent from one another.
 
 Now that we have completed our EDA, we will use the above information in our [Final Project Modeling](https://jpatt1980.github.io/FinalProject/FinalProjectModeling.html)
+

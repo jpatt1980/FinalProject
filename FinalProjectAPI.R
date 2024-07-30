@@ -1,13 +1,14 @@
 # FinalProjectAPI.R
 # Establish libraries for use
   library(tidyverse)
-  library(arm)
   library(dplyr)
-  library(caret)
+  library(caret)  
+  library(arm)
+  
   
 #---------- read in raw data and prep it for prediction modeling ----------#
   
-  diabetes_df_API <- read.csv("./FinalProjectRawData/diabetes_binary_health_indicators_BRFSS2015.csv")
+  diabetes_df_API <- read.csv("diabetes_binary_health_indicators_BRFSS2015.csv")
   
   diabetes_df_API <- as_tibble(diabetes_df_API)
   
@@ -49,10 +50,20 @@
   diabetes_df_API$Income <- fct_recode(diabetes_df_API$Income, Income1 = "1", Income2 = "2", Income3 = "3", Income4 = "4", Income5 = "5", Income6 = "6", Income7 = "7", Income8 = "8")
   
   
+#----- create a training data set to fit -----#
+  set.seed(1)
+  
+  # Create the model index for partitioning the data 
+  modelingIndex <- createDataPartition(diabetes_df_API$HasDiabetes, p=.7, list=FALSE)
+  
+  # Create the training set
+  modelingTrain <- diabetes_df_API[modelingIndex, ]
+  
+  
 #----- fit the data to the selected model -----#
   
   bayesianLogisticFit <- train(HasDiabetes~., 
-                                data=diabetes_df_API,
+                                data=modelingTrain,
                                 method="bayesglm",
                                 preProcess=c("center", "scale"),
                                 trControl = trainControl(method = "cv",
@@ -67,7 +78,7 @@
   
 #---------- generate API ---------- #
   
-
+  
 #* Info
 #* @get /info
 function(){
@@ -78,16 +89,26 @@ function(){
 }
   
   
-  
 #* BayesianGLM Prediction Model for Diabetes_binary
 #* @param HighCholesterol Enter No or Yes
 #* @param BMI Enter BMI
 #* @param BadPhysicalHealth Enter Number of Days (1 through 30) of Bad Physical Health
 #* @param Age Age Category: Options are Age1 through Age13
 #* @get /pred
-function(HighCholesterol = "No", BMI = 27, BadPhysicalHealth = 0, Age = "Age9"){
-
-
+testme <- function(HighCholesterol = "No", BMI = 28, BadPhysicalHealth = 4, Age = "Age9", ...){
+  changeData <- (data.frame(HighCholesterol = {{HighCholesterol}}, BMI = {{as.numeric(BMI)}}, BadPhysicalHealth = {{as.numeric(BadPhysicalHealth)}}, Age = {{Age}}, HighBP = "No", CholesterolChecked = "Yes", Smoker = "No", Stroke = "No", HeartDiseaseorAttack = "No", PhysActivity = "Yes", ConsumesFruits = "Yes", ConsumesVeggies="Yes", HeavyAlcoholUse="No", HasHealthcare="Yes", ExpensiveTreatment="No", GeneralHealth="VeryGood", BadMentalHealth= 3, DifficultyWalking="No", Sex="Female", Education="Ed6", Income="Income8"))
+  
+  TestFit <- predict(bayesianLogisticFit, newdata = changeData)
+  
+  paste0("The result of Diabetes_binary is '", TestFit,"'" )
+  
 }
 
-  #query with http://localhost:PORT/predictionModel?HighCholesterol=No&BMI=27&BadPhysicalHealth=0&Age=Age9
+testme()
+
+  #query1 Maximums with http://localhost:PORT/pred?HighCholesterol=Yes&BMI=50&BadPhysicalHealth=30&Age=Age13
+  
+  #query2 Minimums with http://localhost:PORT/pred?HighCholesterol=No&BMI=14&BadPhysicalHealth=19&Age=Age1
+  
+  #query3 Medians with http://localhost:PORT/pred?HighCholesterol=No&BMI=28&BadPhysicalHealth=3&Age=Age8
+  
