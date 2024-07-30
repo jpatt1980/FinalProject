@@ -188,7 +188,7 @@ highrange <- sum(diabetes_df$BMI > 50)
 
 BMIoutliers <-sum(lowrange, highrange)
 
-print(list("Number of BMI Oultiers"=BMIoutliers))
+print(list("Number of BMI Oultiers (version 2)"=BMIoutliers))
 
 print(list("BMI Outlier portion of data set (version 2)"=BMIoutliers/nrow(diabetes_df)))
 ```
