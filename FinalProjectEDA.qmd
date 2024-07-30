@@ -293,7 +293,7 @@ print(list("Summary of CholesterolChecked"=summary(diabetes_df$CholesterolChecke
 
 that the overwhelming majority of PTs had their cholesterol checked at a ratio of 9:242 (nears 1:27) when compared to those who did not. Any differences between the **HasDiabetes** groups may be heavily influenced by the number of observations in each group more than the interaction between the variables. Review of a bar plot of **CholesterolChecked** with respect to **HasDiabetes** shows
 
-```{r bar plot of CholesterolChecked by HasDiabetes}
+```{r bar plot of CholesterolChecked by HasDiabetes, warning=FALSE, message=FALSE}
 
 CholesterolChecked_by <- diabetes_df |>
   group_by(HasDiabetes, CholesterolChecked) |>
@@ -321,7 +321,7 @@ print(list("Summary of Smoker"=summary(diabetes_df$Smoker)))
 
 the ratio of smokers to non-smokers in the study is approximately 14:11. This is distribution between the groups is fairly close to a 1:1 distribution. Any differences between the **HasDiabetes** groups will be due to interactions between the two variables. Reviewing the bar plot of **Smoker** with respect to **HasDiabetes** shows
 
-```{r bar plot Smoker by HasDiabetes}
+```{r bar plot Smoker by HasDiabetes, warning=FALSE, message=FALSE}
 
 Smoker_by <- diabetes_df |>
   group_by(HasDiabetes, Smoker) |>
@@ -689,7 +689,7 @@ print(list("Summary of PhysicalHealth"=summary(diabetes_df$BadPhysicalHealth)))
 
 shows that like **BadMentalHealth**, the vast majority of **BadPhysicalHealth** responses provided were "0". Reviewing a density plot histogram of **BadPhysicalHealth** along with histogram plots of **BadPhysicalHealth** with respect to **HasDiabetes** show
 
-```{r histograms of BadPhysicalHealth by HasDiabetes}
+```{r histograms of BadPhysicalHealth by HasDiabetes, warning=FALSE, message=FALSE}
 
 BadPhysicalHealth_histogram <- ggplot(diabetes_df, aes(BadPhysicalHealth)) +
   geom_histogram(aes(y=..density..), binwidth=1, fill="#CC0000", color="lightgray") +
@@ -742,7 +742,7 @@ print(list("Summary of DifficultyWalking"=summary(diabetes_df$DifficultyWalking)
 
 shows that the majority of PTs reported "No" at a ratio of approximately 211:43, which reduces to slightly less than 5:1. This suggests that any differences in the **HasDiabetes** groups will be highly influenced by the number of PTs in each. Reviewing the bar plot of **DifficultyWalking** with respect to **HasDiabetes** shows
 
-```{r bar plot of DifficultyWalking by HasDiabetes}
+```{r bar plot of DifficultyWalking by HasDiabetes, warning=FALSE, message=FALSE}
 
 
 DifficultyWalking_by <- diabetes_df |>
@@ -772,7 +772,7 @@ print(list("Summary of Sex"=summary(diabetes_df$Sex)))
 
 shows that the distribution between the categories is almost uniform at a female to male ratio of approximately 142:111 which simplifies to a ratio slightly greater than 1:1. Reviewing the bar plot of **Sex** with respect to **HasDiabetes** shows
 
-```{r bar plot of Sex by HasDiabetes}
+```{r bar plot of Sex by HasDiabetes, warning=FALSE, message=FALSE}
 
 Sex_by <- diabetes_df |>
   group_by(HasDiabetes, Sex) |>
@@ -800,7 +800,7 @@ print(list("Summary of Age"=summary(diabetes_df$Age)))
 
 shows that there is a trend where the number of responses increase in each category until group 9 (60-64), where they then decrease as from category 10 to 12 with group 13 being slightly higher than group 12. Reviewing histograms of **Age** with respect to **HasDiabetes** shows
 
-```{r bar plot of Age by HasDiabetes}
+```{r bar plot of Age by HasDiabetes, warning=FALSE, message=FALSE}
 
 Age_by <- diabetes_df |>
   group_by(HasDiabetes, Age) |>
@@ -852,7 +852,7 @@ print(list("Summary of Education"=summary(diabetes_df$Education)))
 
 shows that the responses increased in each category with the majority of observations belonging to category 6 (College 4yrs or more (College graduate)). Reviewing the bar plot of **Education** with respect to **HasDiabetes** shows
 
-```{r bar plot of Education by HasDiabetes}
+```{r bar plot of Education by HasDiabetes, warning=FALSE, message=FALSE}
 
 Education_by <- diabetes_df |>
   group_by(HasDiabetes, Education) |>
@@ -881,7 +881,7 @@ print(list("Summary of Income"=summary(diabetes_df$Income)))
 
 shows that the number of responses increase as the categories increase, with the largest group earning \$75K per year or more. Reviewing a bar plot of **Income** with respect to **HasDiabetes** shows
 
-```{r bar plot of Income by HasDiabetes}
+```{r bar plot of Income by HasDiabetes, warning=FALSE, message=FALSE}
 
 Income_by <- diabetes_df |>
   group_by(HasDiabetes, Income) |>
